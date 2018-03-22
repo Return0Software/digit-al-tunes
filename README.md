@@ -1,2 +1,2 @@
-# digit-al-tunes
+# Digit-al Tunes
 Make music with your hands
