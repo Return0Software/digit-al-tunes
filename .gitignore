@@ -5,3 +5,4 @@ __pycache__/
 *.out
 *.log
 digit-al-tunes.db
+.DS_Store
