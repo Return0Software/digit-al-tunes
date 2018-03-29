@@ -1,17 +1,26 @@
 # Digit-al Tunes
+
 Make music with your hands
 
 ## Development
 
-* NO F-STRINGS
+**Use `Python 3.5`**
+*NO F-STRINGS*
 
-1. Pipenv or Virtual Environment + `requirements.txt`
+### Pipenv
 
-* GTK+
-Leave it to Tristan for now
+  git clone [repo-url]
+  cd [repo-url]
+  pipenv shell
+  pipenv install
 
-* SQLite
-	* **Need a schema**
-To view inside the SQLite table:
-	1. Install sqlite
-	2. `sqlite digit-al-tunes.db`
+### Pip + Venv
+
+  git clone [repo-url]
+  cd [repo-url]
+  python3 -m venv venv
+  source venv/bin/activate
+  activate
+  pip3 install -r requirements.txt
+
+* **GTK+** is the GUI toolkit of choice - *Leave to Tristan*
