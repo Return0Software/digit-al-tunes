@@ -4,5 +4,4 @@ __pycache__/
 .direnv
 *.out
 *.log
-digit-al-tunes.db
 .DS_Store
