@@ -39,6 +39,9 @@ class Application(Gtk.Application):
         self.__window.present()
 
     def __window_check(self) -> None:
+        """
+        Checks to make sure only one instance of the program is running
+        """
         if self.__window is None:
             self.__window = MainWindow()
             self.add_window(self.__window)
