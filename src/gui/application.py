@@ -6,7 +6,6 @@ from .main_window import MainWindow
 
 import sys
 sys.path.append(sys.path[0] + "/..")
-# from .. import Constants
 from Constants import DIGIT_AL_TUNES_APP_ID
 
 import logging
