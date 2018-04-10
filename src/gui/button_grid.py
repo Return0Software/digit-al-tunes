@@ -3,7 +3,6 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
 import json
-
 from typing import Any, Dict
 
 import logging
@@ -23,6 +22,7 @@ class ButtonGrid(Gtk.Grid):
         with open("./config/default.json") as f:
             self.__data = json.load(f)
 
+        # grid placement
         col: int = 0
         row: int = 0
         for key in self.__data.keys():

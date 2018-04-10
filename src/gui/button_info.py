@@ -18,12 +18,12 @@ class ButtonInfo(Gtk.Grid):
     """
 
     __action_bar: Gtk.ActionBar = None
+    __close: Gtk.Button = None
     __combo: Gtk.ComboBoxText = None
     __done: Gtk.Button = None
     __grid: Gtk.Grid = None
     __label: Gtk.Label = None
     __name_entry: Gtk.Entry = None
-    __close: Gtk.Button = None
 
     def __init__(self):
         Gtk.Grid.__init__(self, column_homogeneous=True, row_spacing=10)
@@ -36,14 +36,14 @@ class ButtonInfo(Gtk.Grid):
         self.__close = Gtk.Button.new_from_icon_name("window-close-symbolic", Gtk.IconSize.BUTTON)
         self.__close.connect("clicked", lambda button: print("close")) # hide revealer
         self.__action_bar = Gtk.ActionBar()
-        self.__action_bar.get_style_context().add_class("inline-toolbar")
+        self.__action_bar.get_style_context().add_class("frame")
         self.__action_bar.pack_start(self.__done)
         self.__action_bar.set_center_widget(self.__label)
         self.__action_bar.pack_end(self.__close)
 
         self.attach(self.__action_bar, 0, 0, 2, 1)
 
-        # Creating the button function combobox
+        # Creating the editable info for a finger combination
         self.__combo = Gtk.ComboBoxText(margin_right=10)
         self.__combo.append_text(ButtonFunction.NONE)
         self.__combo.append_text(ButtonFunction.SOUND)
