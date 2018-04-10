@@ -40,6 +40,7 @@ class MainWindow(Gtk.ApplicationWindow):
         self.__revealer.set_reveal_child(True)
 
         main_box.pack_start(self.__button_grid, True, True, 0)
+        main_box.pack_start(Gtk.Separator.new(Gtk.Orientation.VERTICAL), False, True, 0)
         main_box.pack_end(self.__revealer, False, True, 0)
 
         self.add(main_box)
