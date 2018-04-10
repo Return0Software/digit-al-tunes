@@ -36,7 +36,7 @@ class ButtonInfo(Gtk.Grid):
         self.__close = Gtk.Button.new_from_icon_name("window-close-symbolic", Gtk.IconSize.BUTTON)
         self.__close.connect("clicked", lambda button: print("close")) # hide revealer
         self.__action_bar = Gtk.ActionBar()
-        self.__action_bar.get_style_context().add_class("titlebar")
+        self.__action_bar.get_style_context().add_class("inline-toolbar")
         self.__action_bar.pack_start(self.__done)
         self.__action_bar.set_center_widget(self.__label)
         self.__action_bar.pack_end(self.__close)
