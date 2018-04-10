@@ -28,8 +28,8 @@ class HeaderBar(Gtk.HeaderBar):
         self.__save.get_style_context().add_class("suggested-action")
         self.pack_start(self.__save)
 
-    def __reset_cb(self, button: Gtk.Button):
+    def __reset_cb(self, button: Gtk.Button) -> None:
         print("Reset Callback")
 
-    def __save_cb(self, button: Gtk.Button):
+    def __save_cb(self, button: Gtk.Button) -> None:
         print("Save Callback")
