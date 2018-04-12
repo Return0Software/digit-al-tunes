@@ -12,6 +12,10 @@ LOG_CONFIG = {
 # Gtk data
 DIGIT_AL_TUNES_APP_ID = "com.github.return0software.Digit-al-Tunes"
 
+# Arduino data
+SERIAL_PORT = '/dev/ttyAMC0'
+SERIAL_RATE = 9600
+
 # """
 # Instantiate an ultrasonic sensor with the board
 
