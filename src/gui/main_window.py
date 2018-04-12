@@ -6,6 +6,8 @@ from .button_grid import ButtonGrid
 from .button_info import ButtonInfo
 from .headerbar import HeaderBar
 
+from typing import Union
+
 import logging
 log: logging = logging.getLogger(__name__)
 
@@ -41,6 +43,7 @@ class MainWindow(Gtk.ApplicationWindow):
         self.__reveal_button.set_image(self.__reveal_image)
         self.__reveal_button.connect("clicked", self.__revealer_cb)
         self.__button_info = ButtonInfo()
+        self.__button_info.connect("close-revealer", self.__revealer_cb)
         self.__revealer = Gtk.Revealer(transition_type=Gtk.RevealerTransitionType.SLIDE_LEFT)
         self.__revealer.add(self.__button_info)
 
@@ -50,7 +53,9 @@ class MainWindow(Gtk.ApplicationWindow):
 
         self.add(main_box)
 
-    def __revealer_cb(self, button: Gtk.Button) -> None:
+    def __revealer_cb(self, object: Union[ButtonInfo, Gtk.Button]) -> None:
+        """Close the revealer"""
+
         if self.__revealer.get_child_revealed():
             self.__revealer.set_reveal_child(False)
             self.__reveal_image.set_from_icon_name("pan-start-symbolic", Gtk.IconSize.BUTTON)
