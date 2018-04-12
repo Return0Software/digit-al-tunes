@@ -11,7 +11,7 @@ log: logging = logging.getLogger(__name__)
 @unique
 class Hand(IntEnum):
     """Represents the hand used"""
-    
+
     LEFT = 0
     RIGHT = 1
 
