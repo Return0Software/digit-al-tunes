@@ -1,6 +1,6 @@
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk
+from gi.repository import GObject, Gtk
 
 import logging
 log: logging = logging.getLogger(__name__)
@@ -16,6 +16,10 @@ class ButtonInfo(Gtk.Grid):
     """
     Widget to display info on buttons
     """
+
+    __gsignals__ = {
+        "close-revealer": (GObject.SIGNAL_RUN_FIRST, None, ())
+    }
 
     __action_bar: Gtk.ActionBar = None
     __close: Gtk.Button = None
@@ -34,7 +38,7 @@ class ButtonInfo(Gtk.Grid):
         self.__done.get_style_context().add_class("suggested-action")
         self.__done.connect("clicked", lambda button: print("Done")) # save
         self.__close = Gtk.Button.new_from_icon_name("window-close-symbolic", Gtk.IconSize.BUTTON)
-        self.__close.connect("clicked", lambda button: print("close")) # hide revealer
+        self.__close.connect("clicked", lambda button: self.emit("close-revealer"))
         self.__action_bar = Gtk.ActionBar()
         self.__action_bar.get_style_context().add_class("frame")
         self.__action_bar.pack_start(self.__done)
@@ -61,5 +65,5 @@ class ButtonInfo(Gtk.Grid):
     def __combo_changed_cb(self, combo: Gtk.ComboBoxText) -> None:
         print(combo.get_active_text())
 
-    def set_info(self, label: str, **kwargs) -> None:
-        self.__label.set_label(label)
+    def set_info(self, key: str, **kwargs) -> None:
+        self.__label.set_label(key)
