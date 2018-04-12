@@ -65,5 +65,5 @@ class ButtonInfo(Gtk.Grid):
     def __combo_changed_cb(self, combo: Gtk.ComboBoxText) -> None:
         print(combo.get_active_text())
 
-    def set_info(self, label: str, **kwargs) -> None:
-        self.__label.set_label(label)
+    def set_info(self, key: str, **kwargs) -> None:
+        self.__label.set_label(key)
