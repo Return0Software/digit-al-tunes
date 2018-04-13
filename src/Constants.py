@@ -11,6 +11,8 @@ LOG_CONFIG = {
 
 # Gtk data
 DIGIT_AL_TUNES_APP_ID = "com.github.return0software.Digit-al-Tunes"
+PRESSED_COLOR = "red"
+NOT_PRESSED_COLOR = "gray"
 
 # """
 # Instantiate an ultrasonic sensor with the board

@@ -62,6 +62,8 @@ class ButtonInfo(Gtk.Grid):
         self.attach(Gtk.Label("Function", halign=Gtk.Align.START, margin_left=10), 0, 2, 1, 1)
         self.attach(self.__combo, 1, 2, 1, 1)
 
+        self.get_style_context().add_class("border-pls")
+
     def __combo_changed_cb(self, combo: Gtk.ComboBoxText) -> None:
         print(combo.get_active_text())
 

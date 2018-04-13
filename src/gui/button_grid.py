@@ -18,7 +18,7 @@ class ButtonGrid(Gtk.Grid):
     }
 
     def __init__(self, keys: List[str]):
-        Gtk.Grid.__init__(self, column_homogeneous=True, row_homogeneous=True)
+        Gtk.Grid.__init__(self, expand=True, column_homogeneous=True, row_homogeneous=True)
 
         # grid placement
         col: int = 0

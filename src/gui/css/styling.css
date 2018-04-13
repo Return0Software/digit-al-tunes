@@ -1,0 +1,21 @@
+.rounded-box {
+    border-radius: 10px;
+}
+
+.not-rounded-button {
+    border-radius: 0px;
+}
+
+.border-pls {
+    border-style: solid;
+    border-color: #D8D8D8;
+    border-width: 2px;
+}
+
+.finger-pressed {
+    background-color: #009688;
+}
+
+.finger-not-pressed {
+    background-color: gray;
+}
