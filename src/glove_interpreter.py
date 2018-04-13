@@ -1,4 +1,6 @@
 from threading import Thread
+from typing import List
+
 from serial import Serial
 from time import sleep
 
@@ -94,7 +96,7 @@ def handle_data(data: str) -> None:
     :return: None
     """
     if data:  # data can be empty string quite often
-        print(type(data), end="")  # Serial port already has new line
+        print(data, end="")  # Serial port already has new line
 
 
 def read_from_port(ser: Serial) -> None:
@@ -123,7 +125,7 @@ def find_specific_port(name: str) -> str:
     import warnings
     import serial.tools.list_ports
 
-    ports = [
+    ports: List = [
         p.device
         for p in serial.tools.list_ports.comports()
         if name in p.description.lower()
