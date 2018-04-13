@@ -4,7 +4,7 @@ from typing import List
 from serial import Serial
 from time import sleep
 
-from enum import IntEnum, unique
+from enum import IntEnum, unique, EnumMeta
 
 # from .Constants import SERIAL_PORT, SERIAL_RATE
 
@@ -13,16 +13,24 @@ import logging
 log: logging.Logger = logging.getLogger(__name__)
 
 
+class CommonEnum(EnumMeta):
+    def __getitem__(self, key):
+        try:
+            return super().__getitem__(key)
+        except (TypeError, KeyError):
+            return self._value2member_map_[key]
+
+
 @unique
-class Hand(IntEnum):
+class Hand(IntEnum, metaclass=CommonEnum):
     """Represents the hand used"""
-    __order__ = 'LEFT RIGHT'
+    __order__ = "LEFT RIGHT"
     LEFT = 0
     RIGHT = 1
 
 
 @unique
-class Finger(IntEnum):
+class Finger(IntEnum, metaclass=CommonEnum):
     """Represents the finger used"""
     __order__ = "THUMB INDEX MIDDLE RING PINKY"
     THUMB = 0
@@ -33,7 +41,7 @@ class Finger(IntEnum):
 
 
 @unique
-class Action(IntEnum):
+class Action(IntEnum, metaclass=CommonEnum):
     """Represents either a press or release"""
     __order__ = "PRESS RELEASE"
     PRESS = 0
@@ -178,5 +186,5 @@ def multithread_test() -> None:
 
 
 if __name__ == "__main__":
-    for h in Finger:
-        print(h)
+    h = Hand
+    print(h[1])
