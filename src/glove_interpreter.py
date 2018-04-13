@@ -15,10 +15,7 @@ log: logging.Logger = logging.getLogger(__name__)
 
 class CommonEnum(EnumMeta):
     def __getitem__(self, key):
-        try:
-            return super().__getitem__(key)
-        except (TypeError, KeyError):
-            return self._value2member_map_[key]
+        return self._value2member_map_[key]
 
 
 @unique
@@ -48,7 +45,7 @@ class Action(IntEnum, metaclass=CommonEnum):
     RELEASE = 1
 
 
-class SerialData():
+class SerialData:
     """Python representation of data read from the SerialPort"""
 
     HAND: Hand = None
@@ -103,8 +100,17 @@ def handle_data(data: str) -> None:
     :param data: line from Serial port
     :return: None
     """
-    if data:  # data can be empty string quite often
-        print(data, end="")  # Serial port already has new line
+    if data not in ['', None] and data.rstrip():  # data can be empty string quite often
+        try:
+            # TODO: instead of print, enqueue the job
+            print((
+                Hand[int(data[0])],
+                Finger[int(data[1])],
+                Action[int(data[2])]
+            ))
+        except ValueError as e:
+            # Should never reach here
+            log.error(e, end="")  # Serial port already has new line
 
 
 def read_from_port(ser: Serial) -> None:
@@ -139,9 +145,9 @@ def find_specific_port(name: str) -> str:
         if name in p.description.lower()
     ]
     if not ports:
-        raise IOError("No Arduino found")
+        raise IOError("No {} found".format(name))
     if len(ports) > 1:
-        # TODO: handle multible arduinos
+        # TODO: handle multiple arduinos
         warnings.warn('Multiple Arduinos found - using the first')
     return ports[0]
 
@@ -186,5 +192,4 @@ def multithread_test() -> None:
 
 
 if __name__ == "__main__":
-    h = Hand
-    print(h[1])
+    multithread_test()
