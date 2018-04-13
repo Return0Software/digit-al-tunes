@@ -16,7 +16,7 @@ log: logging.Logger = logging.getLogger(__name__)
 @unique
 class Hand(IntEnum):
     """Represents the hand used"""
-
+    __order__ = 'LEFT RIGHT'
     LEFT = 0
     RIGHT = 1
 
@@ -24,7 +24,7 @@ class Hand(IntEnum):
 @unique
 class Finger(IntEnum):
     """Represents the finger used"""
-
+    __order__ = "THUMB INDEX MIDDLE RING PINKY"
     THUMB = 0
     INDEX = 1
     MIDDLE = 2
@@ -35,7 +35,7 @@ class Finger(IntEnum):
 @unique
 class Action(IntEnum):
     """Represents either a press or release"""
-
+    __order__ = "PRESS RELEASE"
     PRESS = 0
     RELEASE = 1
 
@@ -178,4 +178,5 @@ def multithread_test() -> None:
 
 
 if __name__ == "__main__":
-    multithread_test()
+    for h in Finger:
+        print(h)
