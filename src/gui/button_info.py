@@ -29,6 +29,8 @@ class ButtonInfo(Gtk.Grid):
     __label: Gtk.Label = None
     __name_entry: Gtk.Entry = None
 
+    enabled: bool = None
+
     def __init__(self):
         Gtk.Grid.__init__(self, column_homogeneous=True, row_spacing=10)
 
@@ -64,8 +66,22 @@ class ButtonInfo(Gtk.Grid):
 
         self.get_style_context().add_class("border-pls")
 
+        self.disable()
+
     def __combo_changed_cb(self, combo: Gtk.ComboBoxText) -> None:
         print(combo.get_active_text())
 
+    def disable(self) -> None:
+        self.enabled = False
+        self.__name_entry.set_sensitive(False)
+        self.__combo.set_sensitive(False)
+
+    def enable(self) -> None:
+        self.enabled = True
+        self.__name_entry.set_sensitive(True)
+        self.__combo.set_sensitive(True)
+
     def set_info(self, key: str, **kwargs) -> None:
+        if not self.enabled:
+            self.enable()
         self.__label.set_label(key)

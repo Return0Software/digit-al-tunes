@@ -1,6 +1,6 @@
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk
+from gi.repository import Gdk, Gtk
 
 from typing import List
 
@@ -8,17 +8,15 @@ import logging
 log: logging = logging.getLogger(__name__)
 
 
-class SerialVisualizer(Gtk.Stack):
+class SerialVisualizer(Gtk.Box):
 
     __left_indicators: List[Gtk.DrawingArea] = None
     __right_indicators: List[Gtk.DrawingArea] = None
+    __store: Gtk.ListStore = None
+    __sw: Gtk.ScrolledWindow = None
 
     def __init__(self):
-        Gtk.Stack.__init__(self, expand=True, homogeneous=True, interpolate_size=True,
-            transition_type=Gtk.StackTransitionType.OVER_LEFT_RIGHT)
-
-        encompassing_grid = Gtk.Grid(column_spacing=50,
-            row_homogeneous=True, row_spacing=20)
+        Gtk.Box.__init__(self, spacing=20, orientation=Gtk.Orientation.HORIZONTAL)
 
         left_grid = Gtk.Grid(column_homogeneous=True, column_spacing=50, expand=True,
             row_spacing=40)
@@ -60,10 +58,27 @@ class SerialVisualizer(Gtk.Stack):
         for index, area in enumerate(self.__right_indicators):
             right_grid.attach(area, index, 2, 1, 1)
 
-        encompassing_grid.attach(left_grid, 0, 0, 1, 1)
-        encompassing_grid.attach(Gtk.Separator.new(Gtk.Orientation.VERTICAL), 1, 0, 1, 1)
-        encompassing_grid.attach(right_grid, 2, 0, 1, 1)
+        self.__store = Gtk.ListStore(str, str, str, str)
+        tree = Gtk.TreeView(self.__store)
+        tree.connect("size-allocate", self.__treeview_changed)
+        for index, header in enumerate(["Serial Data", "Hand", "Finger", "Action"]):
+            c = Gtk.TreeViewColumn(header, Gtk.CellRendererText(), text=index)
+            c.set_expand(True)
+            tree.append_column(c)
+        for i in range(100):
+            self.__store.append(("(0, 0, 0)", "Left", "Thumb", "Pressed"))
 
-        self.add_titled(encompassing_grid, "hand_visualizer", "Hand Visualizer")
+        self.__sw = Gtk.ScrolledWindow(hscrollbar_policy=Gtk.PolicyType.NEVER,
+            kinetic_scrolling=True, vscrollbar_policy=Gtk.PolicyType.AUTOMATIC,
+            shadow_type=Gtk.ShadowType.ETCHED_OUT)
+        self.__sw.add(tree)
 
-        # 2 grids, one for left, one for right, helper function to decrease duplication
+        self.pack_start(left_grid, True, True, 0)
+        self.pack_start(Gtk.Separator.new(Gtk.Orientation.VERTICAL), False, True, 0)
+        self.pack_start(self.__sw, True, True, 0)
+        self.pack_start(Gtk.Separator.new(Gtk.Orientation.VERTICAL), False, True, 0)
+        self.pack_end(right_grid, True, True, 0)
+
+    def __treeview_changed(self, tree: Gtk.TreeView, rect: Gdk.Rectangle) -> None:
+        adj = self.__sw.get_vadjustment()
+        adj.set_value(adj.get_upper() - adj.get_page_size())
