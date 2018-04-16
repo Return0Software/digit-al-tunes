@@ -58,6 +58,8 @@ class SerialVisualizer(Gtk.Box):
         for index, area in enumerate(self.__right_indicators):
             right_grid.attach(area, index, 2, 1, 1)
 
+        middle_grid = Gtk.Grid(column_homogeneous=True, row_spacing=20)
+
         self.__store = Gtk.ListStore(str, str, str, str)
         tree = Gtk.TreeView(self.__store)
         tree.connect("size-allocate", self.__treeview_changed)
@@ -68,14 +70,33 @@ class SerialVisualizer(Gtk.Box):
         for i in range(100):
             self.__store.append(("(0, 0, 0)", "Left", "Thumb", "Pressed"))
 
-        self.__sw = Gtk.ScrolledWindow(hscrollbar_policy=Gtk.PolicyType.NEVER,
+        self.__sw = Gtk.ScrolledWindow(hscrollbar_policy=Gtk.PolicyType.NEVER, expand=True,
             kinetic_scrolling=True, vscrollbar_policy=Gtk.PolicyType.AUTOMATIC,
             shadow_type=Gtk.ShadowType.ETCHED_OUT)
         self.__sw.add(tree)
 
+        bbox = Gtk.ButtonBox.new(Gtk.Orientation.HORIZONTAL)
+        bbox.set_layout(Gtk.ButtonBoxStyle.EXPAND)
+        bbox.get_style_context().add_class("linked")
+
+        replay = Gtk.Button.new_with_label("Replay")
+        replay.set_hexpand(True)
+        clear = Gtk.Button.new_with_label("Clear")
+        clear.set_hexpand(True)
+        clear.connect("clicked", lambda button: self.__store.clear())
+        save = Gtk.Button.new_with_label("Save")
+        save.set_hexpand(True)
+
+        bbox.pack_start(replay, True, True, 0)
+        bbox.pack_start(clear, True, True, 0)
+        bbox.pack_end(save, True, True, 0)
+
+        middle_grid.attach(self.__sw, 0, 0, 1, 1)
+        middle_grid.attach(bbox, 0, 1, 1, 1)
+
         self.pack_start(left_grid, True, True, 0)
         self.pack_start(Gtk.Separator.new(Gtk.Orientation.VERTICAL), False, True, 0)
-        self.pack_start(self.__sw, True, True, 0)
+        self.pack_start(middle_grid, True, True, 0)
         self.pack_start(Gtk.Separator.new(Gtk.Orientation.VERTICAL), False, True, 0)
         self.pack_end(right_grid, True, True, 0)
 
