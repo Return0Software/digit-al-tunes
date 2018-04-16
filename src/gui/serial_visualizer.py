@@ -10,8 +10,8 @@ log: logging = logging.getLogger(__name__)
 
 class SerialVisualizer(Gtk.Box):
 
-    __left_indicators: List[Gtk.DrawingArea] = None
-    __right_indicators: List[Gtk.DrawingArea] = None
+    __left_indicators: List[Gtk.Box] = None
+    __right_indicators: List[Gtk.Box] = None
     __store: Gtk.ListStore = None
     __sw: Gtk.ScrolledWindow = None
 
@@ -61,7 +61,7 @@ class SerialVisualizer(Gtk.Box):
         self.__store = Gtk.ListStore(str, str, str, str)
         tree = Gtk.TreeView(self.__store)
         tree.connect("size-allocate", self.__treeview_changed)
-        for index, header in enumerate(["Serial Data", "Hand", "Finger", "Action"]):
+        for index, header in enumerate(("Serial Data", "Hand", "Finger", "Action")):
             c = Gtk.TreeViewColumn(header, Gtk.CellRendererText(), text=index)
             c.set_expand(True)
             tree.append_column(c)
