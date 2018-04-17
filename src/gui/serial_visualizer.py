@@ -108,9 +108,6 @@ class SerialVisualizer(Gtk.Box):
         self.pack_start(Gtk.Separator.new(Gtk.Orientation.VERTICAL), False, True, 0)
         self.pack_end(right_grid, True, True, 0)
 
-        self.set_view((0, 0, 1))
-        self.set_view((1, 0, 1))
-
     def __left_clear(self) -> None:
         for finger in self.__left_fingers:
             finger.get_style_context().add_class("finger-not-pressed")
