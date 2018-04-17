@@ -7,6 +7,7 @@ from typing import List, Tuple
 
 sys.path.append(sys.path[0] + "/..")
 from Constants import FINGER_PRESSED, FINGER_NOT_PRESSED
+import glove_interpreter
 
 import logging
 log: logging = logging.getLogger(__name__)
@@ -107,6 +108,8 @@ class SerialVisualizer(Gtk.Box):
         self.pack_start(middle_grid, True, True, 0)
         self.pack_start(Gtk.Separator.new(Gtk.Orientation.VERTICAL), False, True, 0)
         self.pack_end(right_grid, True, True, 0)
+
+        glove_interpreter.multithread_test(self)
 
     def __left_clear(self) -> None:
         for finger in self.__left_fingers:

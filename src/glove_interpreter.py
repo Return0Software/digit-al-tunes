@@ -48,7 +48,7 @@ class Action(IntEnum, metaclass=CommonEnum):
 """Serial port reading utils"""
 
 
-def handle_data(data: str) -> None:
+def handle_data(data: str, sv) -> None:
     """
     Thread callback func
     :param data: line from Serial port
@@ -57,7 +57,7 @@ def handle_data(data: str) -> None:
     if data not in ['', None] and data.rstrip():  # data can be empty string quite often
         try:
             # TODO: instead of print, enqueue the job
-            print((
+            sv.set_view((
                 Hand[int(data[0])],
                 Finger[int(data[1])],
                 Action[int(data[2])]
@@ -67,7 +67,7 @@ def handle_data(data: str) -> None:
             log.error(e, end="")  # Serial port already has new line
 
 
-def read_from_port(ser: Serial) -> None:
+def read_from_port(ser: Serial, sv) -> None:
     """
     Read data from provided Serial object
     :param ser: Serial object
@@ -81,7 +81,7 @@ def read_from_port(ser: Serial) -> None:
 
         while True:
             reading: str = ser.readline().decode()
-            handle_data(reading)
+            handle_data(reading, sv)
 
 
 class SerialPortManager:
@@ -142,7 +142,7 @@ def find_flora() -> str:
     return find_specific_port('flora')
 
 
-def multithread_test() -> None:
+def multithread_test(sv) -> None:
     """
     Test and show threaded reading of a Serial port. Not sure if asynio is a better option.
     :return: None
@@ -156,21 +156,14 @@ def multithread_test() -> None:
 
     # Port is unique to computer
     port: str = find_flora()
-
     # Should be the same as the arduino
     baud: int = 115200
-
     serial_port = Serial(port, baud, timeout=0)
 
     # Able to make custom subclass Thread but not sure if needed
     # http://www.bogotobogo.com/python/Multithread/python_multithreading_subclassing_creating_threads.php
-    thread: Thread = Thread(target=read_from_port, args=(serial_port,))
+    thread: Thread = Thread(target=read_from_port, args=(serial_port, sv))
     thread.start()
-
-    # Print vals to visually show multithreading
-    for i in range(100):
-        print(i)
-        sleep(1)
 
 
 if __name__ == "__main__":
