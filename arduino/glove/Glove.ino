@@ -74,31 +74,25 @@ bool currentPressed[] = {false, false, false, false, false};
 
 void setup()
 {
-	//while (!Serial)
-	Serial.begin(BAUD);
-	Serial.println("Starting Glove");
+  //while (!Serial)
+  Serial.begin(BAUD);
+  Serial.println("Starting Glove");
 }
 
 
 void loop()
 {
-	long dataVal;
-	for (int i = 0; i < 1; i++) {
-		dataVal =  analogRead(pins[i]);
+  long dataVal;
+  for (int i = 0; i < 1; i++) {
+    dataVal =  analogRead(pins[i]);
 
-		if ((dataVal > THRESHOLD) && !currentPressed[i]) {
-			Serial.print(letterVals[i]);
-			Serial.println(PRESSED);
-			// Serial.print("PRESSED: ");
-			// Serial.println(dataVal);
-			currentPressed[i] = true;
-		} else if ((dataVal <= THRESHOLD) && (currentPressed[i])) {
-			Serial.print(letterVals[i]);
-			Serial.println(RELEASED);
-			// Serial.print("RELEASED: ");
-			// Serial.println(dataVal);
-			currentPressed[i] = false;
-		}
-		delay(1);
-	}
+    if ((dataVal > THRESHOLD) && !currentPressed[i]) {
+      Serial.println(String(letterVals[i]) + PRESSED);
+      currentPressed[i] = true;
+    } else if ((dataVal <= THRESHOLD) && (currentPressed[i])) {
+      Serial.println(String(letterVals[i]) + RELEASED);
+      currentPressed[i] = false;
+    }
+    delay(1);
+  }
 }
