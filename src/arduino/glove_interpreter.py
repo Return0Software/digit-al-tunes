@@ -45,52 +45,6 @@ class Action(IntEnum, metaclass=CommonEnum):
     RELEASE = 1
 
 
-class SerialData:
-    """Python representation of data read from the SerialPort"""
-
-    HAND: Hand = None
-    FINGER: Finger = None
-    ACTION: Action = None
-
-    def __init__(self, data: str):
-        if len(data) != 3:
-            raise ValueError("Length of data in incorrect")
-
-        # parse hand
-        for hand in Hand:
-            if data[0] == hand:
-                self.HAND = hand
-                break
-
-        if self.HAND is None:
-            raise ValueError("Hand value could not be parsed")
-
-        # parse finger
-        for finger in Finger:
-            if data[1] == finger:
-                self.FINGER = finger
-                break
-
-        if self.FINGER is None:
-            raise ValueError("Finger value could not be parsed")
-
-        # parse action
-        for action in Action:
-            if data[2] == action:
-                self.ACTION = action
-                break
-
-        if self.ACTION is None:
-            raise ValueError("Action value could not be parsed")
-
-
-def read_port():
-    ser = serial.Serial(SERIAL_PORT, SERIAL_RATE)
-    while True:
-        data = SerialData(ser.readline().decode("utf-8"))
-        print("{}, {}, {}".format(data.HAND, data.FINGER, data.ACTION))
-
-
 """Serial port reading utils"""
 
 
@@ -129,6 +83,34 @@ def read_from_port(ser: Serial) -> None:
             reading: str = ser.readline().decode()
             handle_data(reading)
 
+
+class SerialPortManager:
+    """
+    Manager for handling and keeping each Arduino/Port separate
+    """
+
+
+class GloveSlave:
+    def __init__(self, port: str):
+        # Instantiate as globals so threads has access
+        # TODO: move to a better place for actual use
+        global connected, serial_port
+
+        # connected is acting like a thread lock
+        connected = False
+
+        # Port is unique to computer
+        port: str = find_flora()
+
+        # Should be the same as the arduino
+        baud: int = 115200
+
+        serial_port = Serial(port, baud, timeout=0)
+
+        # Able to make custom subclass Thread but not sure if needed
+        # http://www.bogotobogo.com/python/Multithread/python_multithreading_subclassing_creating_threads.php
+        thread: Thread = Thread(target=read_from_port, args=(serial_port,))
+        thread.start()
 
 def find_specific_port(name: str) -> str:
     """
