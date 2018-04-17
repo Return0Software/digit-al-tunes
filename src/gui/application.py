@@ -42,16 +42,16 @@ class Application(Gtk.Application):
         self.__window.present()
 
     def __window_check(self) -> None:
-        """
-        Checks to make sure only one instance of the program is running
-        """
+        """Checks to make sure only one instance of the program is running"""
+
         if self.__window is None:
             self.__window = MainWindow()
             self.add_window(self.__window)
             log.debug("Main window created")
 
     def __init_css(self):
-        """ Set up the CSS before we throw any windows up """
+        """Set up the CSS before we throw any windows up"""
+
         try:
             f = Gio.File.new_for_path("./gui/css/styling.css")
             css = Gtk.CssProvider()
