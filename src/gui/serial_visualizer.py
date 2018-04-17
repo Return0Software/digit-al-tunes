@@ -75,8 +75,6 @@ class SerialVisualizer(Gtk.Box):
             c = Gtk.TreeViewColumn(header, Gtk.CellRendererText(), text=index)
             c.set_expand(True)
             self.__tree.append_column(c)
-        for i in range(100):
-            self.__store.append(("(0, 0, 0)", "Left", "Thumb", "Pressed"))
 
         self.__sw = Gtk.ScrolledWindow(hscrollbar_policy=Gtk.PolicyType.NEVER, expand=True,
             kinetic_scrolling=True, vscrollbar_policy=Gtk.PolicyType.AUTOMATIC,
@@ -135,18 +133,25 @@ class SerialVisualizer(Gtk.Box):
     # def replay_actions(self, actions: List[Tuple[int, int, int]]) -> None
 
     def set_view(self, data: Tuple[int, int, int]) -> None:
+
         if data[2] == 0:
             add_style_class = FINGER_NOT_PRESSED
             remove_style_class = FINGER_PRESSED
+            action = "Released"
         else:
             add_style_class = FINGER_PRESSED
             remove_style_class = FINGER_NOT_PRESSED
+            action = "Pressed"
 
         if data[0] == 0:
             finger = self.__left_fingers[4 - data[1]]
             finger.get_style_context().remove_class(remove_style_class)
             finger.get_style_context().add_class(add_style_class)
+            hand = "Left"
         else:
             finger = self.__right_fingers[data[1]]
             finger.get_style_context().remove_class(remove_style_class)
             finger.get_style_context().add_class(add_style_class)
+            hand = "Right"
+
+        self.__store.append(("({}, {}, {})".format(data[0], data[1], data[2]), hand, "Thumb", action))
