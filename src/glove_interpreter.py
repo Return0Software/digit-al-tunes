@@ -57,13 +57,15 @@ def handle_data(data: str, sv) -> None:
     if data not in ['', None] and data.rstrip():  # data can be empty string quite often
         try:
             # TODO: instead of print, enqueue the job
+            # sleep(.3)
             sv.set_view((
                 Hand[int(data[0])],
                 Finger[int(data[1])],
                 Action[int(data[2])]
             ))
-        except ValueError as e:
+        except (ValueError, IndexError) as e:
             # Should never reach here
+            print(repr(data))
             log.error(e, end="")  # Serial port already has new line
 
 
