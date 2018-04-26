@@ -11,8 +11,8 @@ class HeaderBar(Gtk.HeaderBar):
     Headerbar for the main window
     """
 
-    __reset = None
-    __save = None
+    __reset: Gtk.Button = None
+    __save: Gtk.Button = None
 
     def __init__(self):
         Gtk.HeaderBar.__init__(self, title="Digit-al Tunes", show_close_button=True,

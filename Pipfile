@@ -4,8 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-PyGObject = "*"
-pydocstyle = "*"
+pygobject = "*"
+pyserial = "*"
 
 [dev-packages]
 "flake8" = "*"

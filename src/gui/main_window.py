@@ -2,8 +2,13 @@ import gi
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
-from .headerbar import HeaderBar
+import json
+from typing import Any, Dict, Union
+
+from .button_grid import ButtonGrid
 from .button_info import ButtonInfo
+from .headerbar import HeaderBar
+from .serial_visualizer import SerialVisualizer
 
 import logging
 log: logging = logging.getLogger(__name__)
@@ -14,22 +19,62 @@ class MainWindow(Gtk.ApplicationWindow):
     The main application window
     """
 
-    __button_info = None
-    __grid = None
-    __headerbar = None
-    __revealer = None
+    __button_grid: ButtonGrid = None
+    __button_info: ButtonInfo = None
+    __data: Dict[str, Any] = None
+    __serial_visualizer: SerialVisualizer = None
+    __grid: Gtk.Grid = None
+    __headerbar: HeaderBar = None
+    __revealer: Gtk.Revealer = None
+    __reveal_button: Gtk.Button = None
+    __reveal_image: Gtk.Image = None
 
     def __init__(self):
         Gtk.ApplicationWindow.__init__(self)
+
+        with open("./config/default.json") as f:
+            self.__data = json.load(f)
 
         self.set_border_width(10)
 
         self.__headerbar = HeaderBar()
         self.set_titlebar(self.__headerbar)
 
+        main_grid = Gtk.Grid(column_spacing=20, row_spacing=20, margin=10)
+
+        self.__button_grid = ButtonGrid(self.__data.keys())
+        self.__button_grid.connect("button-clicked", self.__setup_button_info_cb)
+        self.__reveal_image = Gtk.Image.new_from_icon_name("pan-start-symbolic",
+            Gtk.IconSize.BUTTON)
+        self.__reveal_button = Gtk.Button()
+        self.__reveal_button.get_style_context().add_class("not-rounded-button")
+        self.__reveal_button.set_image(self.__reveal_image)
+        self.__reveal_button.connect("clicked", self.__revealer_cb)
         self.__button_info = ButtonInfo()
+        self.__button_info.connect("close-revealer", self.__revealer_cb)
         self.__revealer = Gtk.Revealer(transition_type=Gtk.RevealerTransitionType.SLIDE_LEFT)
         self.__revealer.add(self.__button_info)
-        self.__revealer.set_reveal_child(True)
+        self.__serial_visualizer = SerialVisualizer()
 
-        self.add(self.__revealer)
+        main_grid.attach(self.__button_grid, 0, 0, 1, 1)
+        main_grid.attach(self.__reveal_button, 1, 0, 1, 1)
+        main_grid.attach(self.__revealer, 2, 0, 1, 1)
+        main_grid.attach(self.__serial_visualizer, 0, 1, 3, 1)
+
+        self.add(main_grid)
+
+    def __revealer_cb(self, object: Union[ButtonInfo, Gtk.Button]) -> None:
+        """Close the revealer"""
+        # Refactor into 2 different methods? open_revealer and close_revealer
+        if self.__revealer.get_child_revealed():
+            self.__revealer.set_reveal_child(False)
+            self.__reveal_image.set_from_icon_name("pan-start-symbolic", Gtk.IconSize.BUTTON)
+        else:
+            self.__revealer.set_reveal_child(True)
+            self.__reveal_image.set_from_icon_name("pan-end-symbolic", Gtk.IconSize.BUTTON)
+
+    def __setup_button_info_cb(self, button_grid: ButtonGrid, key: str) -> None:
+        if not self.__revealer.get_child_revealed():
+            self.__revealer.set_reveal_child(True)
+            self.__reveal_image.set_from_icon_name("pan-end-symbolic", Gtk.IconSize.BUTTON)
+        self.__button_info.set_info(key, **self.__data[key])
