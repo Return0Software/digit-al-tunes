@@ -50,6 +50,42 @@ class Action(IntEnum, metaclass=CommonEnum):
 """Serial port reading utils"""
 
 
+def find_specific_port(name: str) -> str:
+    """
+    Find a port that has {name} in the description
+    :param name: name that port should include
+    :return: name of the port desired
+    """
+    import warnings
+    import serial.tools.list_ports
+
+    ports: List = [
+        {"device": p.device, "name": p.description}
+        for p in serial.tools.list_ports.comports()
+        if name in p.description.lower()
+    ]
+    if not ports:
+        raise IOError("No {} found".format(name))
+    if len(ports) > 1:
+        for port in ports:
+            if port["device"] not in ACTIVE_FLORAS:
+                ACTIVE_FLORAS.append(port["device"])
+                print("Found and Connected to {}({})".format(port["name"], port["device"]))
+                return port["device"]
+        raise IOError("No {} found".format(name))
+
+    print("Found and Connected to {}({})".format(ports[0]["name"], ports[0]["device"]))
+    return ports[0]["device"]
+
+
+def find_flora() -> str:
+    """
+    Find which port the a Flora is on
+    :return: Port name
+    """
+    return find_specific_port('flora')
+
+
 def handle_data(data: str) -> Tuple[str, str, str] or None:
     """
     Cleansing of data from the port
@@ -110,75 +146,8 @@ class GloveReader:
 
         # Able to make custom subclass Thread but not sure if needed
         # http://www.bogotobogo.com/python/Multithread/python_multithreading_subclassing_creating_threads.php
-        thread: Thread = Thread(target=read_from_port, args=(serial_port, cb))
+        thread: Thread = Thread(target=read_from_port, args=(serial_port, cb), daemon=True)
         thread.start()
-
-
-def find_specific_port(name: str) -> str:
-    """
-    Find a port that has {name} in the description
-    :param name: name that port should include
-    :return: name of the port desired
-    """
-    import warnings
-    import serial.tools.list_ports
-
-    ports: List = [
-        {"device": p.device, "name": p.description}
-        for p in serial.tools.list_ports.comports()
-        if name in p.description.lower()
-    ]
-    if not ports:
-        raise IOError("No {} found".format(name))
-    if len(ports) > 1:
-        for port in ports:
-            if port["device"] not in ACTIVE_FLORAS:
-                ACTIVE_FLORAS.append(port["device"])
-                print("Found and Connected to {}({})".format(port["name"], port["device"]))
-                return port["device"]
-        raise IOError("No {} found".format(name))
-
-    print("Found and Connected to {}({})".format(ports[0]["name"], ports[0]["device"]))
-    return ports[0]["device"]
-
-
-def find_flora() -> str:
-    """
-    Find which port the a Flora is on
-    :return: Port name
-    """
-    return find_specific_port('flora')
-
-
-def multithread_test() -> None:
-    """
-    Test and show threaded reading of a Serial port. Not sure if asynio is a better option.
-    :return: None
-    """
-    # Instantiate as globals so threads has access
-    # TODO: move to a better place for actual use
-    global connected, serial_port
-
-    # connected is acting like a thread lock
-    connected = False
-
-    # Port is unique to computer
-    port: str = find_flora()
-
-    # Should be the same as the arduino
-    baud: int = 115200
-
-    serial_port = Serial(port, baud, timeout=0)
-
-    # Able to make custom subclass Thread but not sure if needed
-    # http://www.bogotobogo.com/python/Multithread/python_multithreading_subclassing_creating_threads.php
-    thread: Thread = Thread(target=read_from_port, args=(serial_port,), daemon=True)
-    thread.start()
-
-    # Print vals to visually show multithreading
-    for i in range(100):
-        print(i)
-        sleep(1)
 
 
 if __name__ == "__main__":
