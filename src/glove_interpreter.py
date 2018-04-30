@@ -1,5 +1,5 @@
 from threading import Thread
-from typing import List
+from typing import List, Callable, Tuple
 
 from serial import Serial
 from time import sleep
@@ -11,6 +11,8 @@ from enum import IntEnum, unique, EnumMeta
 import logging
 
 log: logging.Logger = logging.getLogger(__name__)
+
+ACTIVE_FLORAS: List[str] = []
 
 
 class CommonEnum(EnumMeta):
@@ -48,29 +50,31 @@ class Action(IntEnum, metaclass=CommonEnum):
 """Serial port reading utils"""
 
 
-def handle_data(data: str) -> None:
+def handle_data(data: str) -> Tuple[str, str, str] or None:
     """
-    Thread callback func
+    Cleansing of data from the port
     :param data: line from Serial port
     :return: None
     """
     if data not in ['', None] and data.rstrip():  # data can be empty string quite often
         try:
-            # TODO: instead of print, enqueue the job
-            print((
+            return (
                 Hand[int(data[0])],
                 Finger[int(data[1])],
                 Action[int(data[2])]
-            ))
-        except ValueError as e:
+            )
+        except (ValueError, IndexError) as e:
             # Should never reach here
             log.error(e, end="")  # Serial port already has new line
+            print(e, end="")
+    return None
 
 
-def read_from_port(ser: Serial) -> None:
+def read_from_port(ser: Serial, cb) -> None:
     """
     Read data from provided Serial object
     :param ser: Serial object
+    :param cb: callback
     :return: None
     """
     global connected
@@ -81,17 +85,14 @@ def read_from_port(ser: Serial) -> None:
 
         while True:
             reading: str = ser.readline().decode()
-            handle_data(reading)
+            data = handle_data(reading)
+
+            if data:
+                cb(data)
 
 
-class SerialPortManager:
-    """
-    Manager for handling and keeping each Arduino/Port separate
-    """
-
-
-class GloveSlave:
-    def __init__(self, port: str):
+class GloveReader:
+    def __init__(self, cb):
         # Instantiate as globals so threads has access
         # TODO: move to a better place for actual use
         global connected, serial_port
@@ -109,8 +110,9 @@ class GloveSlave:
 
         # Able to make custom subclass Thread but not sure if needed
         # http://www.bogotobogo.com/python/Multithread/python_multithreading_subclassing_creating_threads.php
-        thread: Thread = Thread(target=read_from_port, args=(serial_port,))
+        thread: Thread = Thread(target=read_from_port, args=(serial_port, cb))
         thread.start()
+
 
 def find_specific_port(name: str) -> str:
     """
@@ -122,16 +124,22 @@ def find_specific_port(name: str) -> str:
     import serial.tools.list_ports
 
     ports: List = [
-        p.device
+        {"device": p.device, "name": p.description}
         for p in serial.tools.list_ports.comports()
         if name in p.description.lower()
     ]
     if not ports:
         raise IOError("No {} found".format(name))
     if len(ports) > 1:
-        # TODO: handle multiple arduinos
-        warnings.warn('Multiple Arduinos found - using the first')
-    return ports[0]
+        for port in ports:
+            if port["device"] not in ACTIVE_FLORAS:
+                ACTIVE_FLORAS.append(port["device"])
+                print("Found and Connected to {}({})".format(port["name"], port["device"]))
+                return port["device"]
+        raise IOError("No {} found".format(name))
+
+    print("Found and Connected to {}({})".format(ports[0]["name"], ports[0]["device"]))
+    return ports[0]["device"]
 
 
 def find_flora() -> str:
@@ -164,7 +172,7 @@ def multithread_test() -> None:
 
     # Able to make custom subclass Thread but not sure if needed
     # http://www.bogotobogo.com/python/Multithread/python_multithreading_subclassing_creating_threads.php
-    thread: Thread = Thread(target=read_from_port, args=(serial_port,))
+    thread: Thread = Thread(target=read_from_port, args=(serial_port,), daemon=True)
     thread.start()
 
     # Print vals to visually show multithreading
@@ -174,4 +182,5 @@ def multithread_test() -> None:
 
 
 if __name__ == "__main__":
-    multithread_test()
+    g1 = GloveReader(print)
+    g2 = GloveReader(print)
