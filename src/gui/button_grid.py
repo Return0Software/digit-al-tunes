@@ -24,7 +24,7 @@ class ButtonGrid(Gtk.Grid):
         col: int = 0
         row: int = 0
         for key in keys:
-            if row % 5 == 0:
+            if row % 4 == 0:
                 col += 1
                 row = 0
             b = Gtk.Button.new_with_label(key)

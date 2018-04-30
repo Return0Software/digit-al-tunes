@@ -3,6 +3,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gdk, Gtk
 
 import sys
+import threading
 from typing import List, Tuple
 
 sys.path.append(sys.path[0] + "/..")
@@ -26,17 +27,16 @@ class SerialVisualizer(Gtk.Box):
 
         left_grid = Gtk.Grid(column_homogeneous=True, column_spacing=50, expand=True,
             row_spacing=40)
-        left_grid.attach(Gtk.Label("<b><big><u>Left</u></big></b>", use_markup=True), 0, 0, 5, 1)
-        left_grid.attach(Gtk.Label("<b>Pinky</b>", use_markup=True), 0, 1, 1, 1)
-        left_grid.attach(Gtk.Label("<b>Ring</b>", use_markup=True), 1, 1, 1, 1)
-        left_grid.attach(Gtk.Label("<b>Middle</b>", use_markup=True), 2, 1, 1, 1)
-        left_grid.attach(Gtk.Label("<b>Index</b>", use_markup=True), 3, 1, 1, 1)
-        left_grid.attach(Gtk.Label("<b>Thumb</b>", use_markup=True), 4, 1, 1, 1)
+        left_grid.attach(Gtk.Label("<b><big><u>Left</u></big></b>", use_markup=True), 0, 0, 4, 1)
+        left_grid.attach(Gtk.Label("<b>Ring</b>", use_markup=True), 0, 1, 1, 1)
+        left_grid.attach(Gtk.Label("<b>Middle</b>", use_markup=True), 1, 1, 1, 1)
+        left_grid.attach(Gtk.Label("<b>Index</b>", use_markup=True), 2, 1, 1, 1)
+        left_grid.attach(Gtk.Label("<b>Thumb</b>", use_markup=True), 3, 1, 1, 1)
 
         self.__left_fingers = []
-        for i in range(5):
+        for i in range(4):
             area = Gtk.Box()
-            area.set_size_request(-1, 30)
+            area.set_size_request(-1, 35)
             area.get_style_context().add_class("finger-not-pressed")
             area.get_style_context().add_class("rounded-box")
             self.__left_fingers.append(area)
@@ -46,17 +46,16 @@ class SerialVisualizer(Gtk.Box):
 
         right_grid = Gtk.Grid(column_homogeneous=True, column_spacing=50, expand=True,
             row_spacing=40)
-        right_grid.attach(Gtk.Label("<b><big><u>Right</u></big></b>", use_markup=True), 0, 0, 5, 1)
+        right_grid.attach(Gtk.Label("<b><big><u>Right</u></big></b>", use_markup=True), 0, 0, 4, 1)
         right_grid.attach(Gtk.Label("<b>Thumb</b>", use_markup=True), 0, 1, 1, 1)
         right_grid.attach(Gtk.Label("<b>Index</b>", use_markup=True), 1, 1, 1, 1)
         right_grid.attach(Gtk.Label("<b>Middle</b>", use_markup=True), 2, 1, 1, 1)
         right_grid.attach(Gtk.Label("<b>Ring</b>", use_markup=True), 3, 1, 1, 1)
-        right_grid.attach(Gtk.Label("<b>Pinky</b>", use_markup=True), 4, 1, 1, 1)
 
         self.__right_fingers = []
-        for i in range(5):
+        for i in range(4):
             area = Gtk.Box()
-            area.set_size_request(-1, 30)
+            area.set_size_request(-1, 35)
             area.get_style_context().add_class("finger-not-pressed")
             area.get_style_context().add_class("rounded-box")
             self.__right_fingers.append(area)
@@ -107,8 +106,11 @@ class SerialVisualizer(Gtk.Box):
         self.pack_start(Gtk.Separator.new(Gtk.Orientation.VERTICAL), False, True, 0)
         self.pack_end(right_grid, True, True, 0)
 
-        g1 = GloveReader(self.set_view)
-        g2 = GloveReader(self.set_view)
+        def create_gloves():
+            g1 = GloveReader(self.set_view)
+            g2 = GloveReader(self.set_view)
+
+        threading.Thread(name="glove-init", target=create_gloves, daemon=True).start()
 
         # self.set_view((0, 0, 1))
         # self.set_view((1, 0, 1))

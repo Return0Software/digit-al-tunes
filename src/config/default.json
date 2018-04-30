@@ -15,10 +15,6 @@
     "name": null,
     "function": null
   },
-  "L0R4": {
-    "name": null,
-    "function": null
-  },
   "L1R0": {
     "name": null,
     "function": null
@@ -32,10 +28,6 @@
     "function": null
   },
   "L1R3": {
-    "name": null,
-    "function": null
-  },
-  "L1R4": {
     "name": null,
     "function": null
   },
@@ -55,10 +47,6 @@
     "name": null,
     "function": null
   },
-  "L2R4": {
-    "name": null,
-    "function": null
-  },
   "L3R0": {
     "name": null,
     "function": null
@@ -72,30 +60,6 @@
     "function": null
   },
   "L3R3": {
-    "name": null,
-    "function": null
-  },
-  "L3R4": {
-    "name": null,
-    "function": null
-  },
-  "L4R0": {
-    "name": null,
-    "function": null
-  },
-  "L4R1": {
-    "name": null,
-    "function": null
-  },
-  "L4R2": {
-    "name": null,
-    "function": null
-  },
-  "L4R3": {
-    "name": null,
-    "function": null
-  },
-  "L4R4": {
     "name": null,
     "function": null
   }
