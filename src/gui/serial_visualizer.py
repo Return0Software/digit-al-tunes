@@ -150,7 +150,7 @@ class SerialVisualizer(Gtk.Box):
             action = "Pressed"
 
         if data[0] == 0:
-            finger = self.__left_fingers[4 - data[1]]
+            finger = self.__left_fingers[3 - data[1]]
             finger.get_style_context().remove_class(remove_style_class)
             finger.get_style_context().add_class(add_style_class)
             hand = "Left"
