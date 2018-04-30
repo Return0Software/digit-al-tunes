@@ -1,12 +1,9 @@
 from threading import Thread
-from typing import List, Callable, Tuple
+from typing import List, Tuple
 
 from serial import Serial
-from time import sleep
 
 from enum import IntEnum, unique, EnumMeta
-
-# from .Constants import SERIAL_PORT, SERIAL_RATE
 
 import logging
 

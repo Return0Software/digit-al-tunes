@@ -18,9 +18,9 @@ const int BAUD = 115200;
 // ============================================================================
 
 // Left Hand
-const int PIN_LEFT_THUMB = 10;
-const int PIN_LEFT_INDEX = 10;
-const int PIN_LEFT_MIDDLE = 11;
+const int PIN_LEFT_THUMB = 12;
+const int PIN_LEFT_INDEX = 6;
+const int PIN_LEFT_MIDDLE = 9;
 const int PIN_LEFT_RING = 10;
 const int PIN_LEFT_PINKY = 11;
 
@@ -28,9 +28,9 @@ const int PINS_LEFT[5] = {PIN_LEFT_THUMB, PIN_LEFT_INDEX, PIN_LEFT_MIDDLE, PIN_L
 
 // Right Hand
 const int PIN_RIGHT_THUMB = 10;
-const int PIN_RIGHT_INDEX = 10;
-const int PIN_RIGHT_MIDDLE = 11;
-const int PIN_RIGHT_RING = 10;
+const int PIN_RIGHT_INDEX = 9;
+const int PIN_RIGHT_MIDDLE = 6;
+const int PIN_RIGHT_RING = 12;
 const int PIN_RIGHT_PINKY = 11;
 
 const int PINS_RIGHT[5] = {PIN_RIGHT_THUMB, PIN_RIGHT_INDEX, PIN_RIGHT_MIDDLE, PIN_RIGHT_RING, PIN_RIGHT_PINKY};
@@ -63,42 +63,41 @@ const char* VALS_RIGHT[5] = {VAL_RIGHT_THUMB, VAL_RIGHT_INDEX, VAL_RIGHT_MIDDLE,
 const char PRESSED[2] = "1";
 const char RELEASED[2] = "0";
 
-const int* pins = PINS_LEFT;
-// const int* pins = PINS_RIGHT;
 
-const char** letterVals = VALS_LEFT;
+// LEFT OR RIGHT HAND
+// const int* pins = PINS_RIGHT;
 // const char** letterVals = VALS_RIGHT;
+const int* pins = PINS_LEFT;
+const char** letterVals = VALS_LEFT;
+
 
 // Container for determing if a finger was pressed in the last cycle
 bool currentPressed[] = {false, false, false, false, false};
 
 void setup()
 {
-	//while (!Serial)
 	Serial.begin(BAUD);
-	Serial.println("Starting Glove");
-}
+  Serial.println("Starting Glove");
+  for (int i = 0; i < 4; i++)
+    pinMode(pins[i], INPUT_PULLUP);
+}// const char** letterVals = VALS_RIGHT;
 
 
 void loop()
 {
 	long dataVal;
-	for (int i = 0; i < 1; i++) {
-		dataVal =  analogRead(pins[i]);
+	for (int i = 0; i < 4; i++) {
+		dataVal =  digitalRead(pins[i]);
 
-		if ((dataVal > THRESHOLD) && !currentPressed[i]) {
+		if (!currentPressed[i] && dataVal == HIGH) {
 			Serial.print(letterVals[i]);
 			Serial.println(PRESSED);
-			// Serial.print("PRESSED: ");
-			// Serial.println(dataVal);
 			currentPressed[i] = true;
-		} else if ((dataVal <= THRESHOLD) && (currentPressed[i])) {
+		} else if (currentPressed[i] && dataVal == LOW) {
 			Serial.print(letterVals[i]);
 			Serial.println(RELEASED);
-			// Serial.print("RELEASED: ");
-			// Serial.println(dataVal);
 			currentPressed[i] = false;
 		}
-		delay(1);
+		delay(10);
 	}
 }
