@@ -6,6 +6,7 @@ name = "pypi"
 [packages]
 pygobject = "*"
 pyserial = "*"
+python-vlc = "*"
 
 [dev-packages]
 "flake8" = "*"
