@@ -28,6 +28,7 @@ class ButtonInfo(Gtk.Grid):
     __grid: Gtk.Grid = None
     __label: Gtk.Label = None
     __name_entry: Gtk.Entry = None
+    __path_entry: Gtk.Entry = None
 
     enabled: bool = None
 
@@ -50,6 +51,8 @@ class ButtonInfo(Gtk.Grid):
         self.attach(self.__action_bar, 0, 0, 2, 1)
 
         # Creating the editable info for a finger combination
+        self.__name_entry = Gtk.Entry(editable=True, has_frame=True, margin_right=10)
+
         self.__combo = Gtk.ComboBoxText(margin_right=10)
         self.__combo.append_text(ButtonFunction.NONE)
         self.__combo.append_text(ButtonFunction.SOUND)
@@ -57,12 +60,14 @@ class ButtonInfo(Gtk.Grid):
         self.__combo.set_active(0)
         self.__combo.connect("changed", self.__combo_changed_cb)
 
-        self.__name_entry = Gtk.Entry(editable=True, has_frame=True, margin_right=10)
+        self.__path_entry = Gtk.Entry(editable=True, has_frame=True, margin_right=10)
 
         self.attach(Gtk.Label("Name", halign=Gtk.Align.START, margin_left=10), 0, 1, 1, 1)
         self.attach(self.__name_entry, 1, 1, 1, 1)
         self.attach(Gtk.Label("Function", halign=Gtk.Align.START, margin_left=10), 0, 2, 1, 1)
         self.attach(self.__combo, 1, 2, 1, 1)
+        self.attach(Gtk.Label("Path", halign=Gtk.Align.START, margin_left=10), 0, 3, 1, 1)
+        self.attach(self.__path_entry, 1, 3, 1, 1)
 
         self.get_style_context().add_class("border-pls")
 

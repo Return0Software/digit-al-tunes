@@ -1,6 +1,6 @@
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gdk, Gtk
+from gi.repository import Gdk, GObject, Gtk
 
 import sys
 import threading
@@ -15,6 +15,10 @@ log: logging = logging.getLogger(__name__)
 
 
 class SerialVisualizer(Gtk.Box):
+
+    __gsignals__ = {
+        "button-pressed": (GObject.SIGNAL_RUN_FIRST, None, (int, int, int))
+    }
 
     __left_fingers: List[Gtk.Box] = None
     __right_fingers: List[Gtk.Box] = None
@@ -112,9 +116,6 @@ class SerialVisualizer(Gtk.Box):
 
         threading.Thread(name="glove-init", target=create_gloves, daemon=True).start()
 
-        # self.set_view((0, 0, 1))
-        # self.set_view((1, 0, 1))
-
     def __left_clear(self) -> None:
         for finger in self.__left_fingers:
             finger.get_style_context().add_class("finger-not-pressed")
@@ -139,15 +140,16 @@ class SerialVisualizer(Gtk.Box):
     # def replay_actions(self, actions: List[Tuple[int, int, int]]) -> None
 
     def set_view(self, data: Tuple[int, int, int]) -> None:
+        self.emit("button-pressed", data[0], data[1], data[2])
 
         if data[2] == 0:
             add_style_class = FINGER_NOT_PRESSED
             remove_style_class = FINGER_PRESSED
-            action = "Released"
+            action = "Pressed"
         else:
             add_style_class = FINGER_PRESSED
             remove_style_class = FINGER_NOT_PRESSED
-            action = "Pressed"
+            action = "Released"
 
         if data[0] == 0:
             finger = self.__left_fingers[3 - data[1]]

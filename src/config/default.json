@@ -1,66 +1,162 @@
 {
-  "L0R0": {
-    "name": null,
-    "function": null
+  "00000": {
+    "name": "0",
+    "function": null,
+    "path": null
   },
-  "L0R1": {
-    "name": null,
-    "function": null
+  "00001": {
+    "name": "1",
+    "function": null,
+    "path": null
   },
-  "L0R2": {
-    "name": null,
-    "function": null
+  "00010": {
+    "name": "2",
+    "function": null,
+    "path": null
   },
-  "L0R3": {
-    "name": null,
-    "function": null
+  "00011": {
+    "name": "3",
+    "function": null,
+    "path": null
   },
-  "L1R0": {
-    "name": null,
-    "function": null
+  "00100": {
+    "name": "4",
+    "function": null,
+    "path": null
   },
-  "L1R1": {
-    "name": null,
-    "function": null
+  "00101": {
+    "name": "5",
+    "function": null,
+    "path": null
   },
-  "L1R2": {
-    "name": null,
-    "function": null
+  "00110": {
+    "name": "6",
+    "function": null,
+    "path": null
   },
-  "L1R3": {
-    "name": null,
-    "function": null
+  "00111": {
+    "name": "7",
+    "function": null,
+    "path": null
   },
-  "L2R0": {
-    "name": null,
-    "function": null
+  "01000": {
+    "name": "8",
+    "function": null,
+    "path": null
   },
-  "L2R1": {
-    "name": null,
-    "function": null
+  "01001": {
+    "name": "9",
+    "function": null,
+    "path": null
   },
-  "L2R2": {
-    "name": null,
-    "function": null
+  "01010": {
+    "name": "10",
+    "function": null,
+    "path": null
   },
-  "L2R3": {
-    "name": null,
-    "function": null
+  "01011": {
+    "name": "11",
+    "function": null,
+    "path": null
   },
-  "L3R0": {
-    "name": null,
-    "function": null
+  "01100": {
+    "name": "12",
+    "function": null,
+    "path": null
   },
-  "L3R1": {
-    "name": null,
-    "function": null
+  "01101": {
+    "name": "13",
+    "function": null,
+    "path": null
   },
-  "L3R2": {
-    "name": null,
-    "function": null
+  "01110": {
+    "name": "14",
+    "function": null,
+    "path": null
   },
-  "L3R3": {
-    "name": null,
-    "function": null
+  "01111": {
+    "name": "15",
+    "function": null,
+    "path": null
+  },
+  "10000": {
+    "name": "0",
+    "function": null,
+    "path": null
+  },
+  "10001": {
+    "name": "1",
+    "function": null,
+    "path": null
+  },
+  "10010": {
+    "name": "2",
+    "function": null,
+    "path": null
+  },
+  "10011": {
+    "name": "3",
+    "function": null,
+    "path": null
+  },
+  "10100": {
+    "name": "4",
+    "function": null,
+    "path": null
+  },
+  "10101": {
+    "name": "5",
+    "function": null,
+    "path": null
+  },
+  "10110": {
+    "name": "6",
+    "function": null,
+    "path": null
+  },
+  "10111": {
+    "name": "7",
+    "function": null,
+    "path": null
+  },
+  "11000": {
+    "name": "8",
+    "function": null,
+    "path": null
+  },
+  "11001": {
+    "name": "9",
+    "function": null,
+    "path": null
+  },
+  "11010": {
+    "name": "10",
+    "function": null,
+    "path": null
+  },
+  "11011": {
+    "name": "11",
+    "function": null,
+    "path": null
+  },
+  "11100": {
+    "name": "12",
+    "function": null,
+    "path": null
+  },
+  "11101": {
+    "name": "13",
+    "function": null,
+    "path": null
+  },
+  "11110": {
+    "name": "14",
+    "function": null,
+    "path": null
+  },
+  "11111": {
+    "name": "15",
+    "function": null,
+    "path": null
   }
 }

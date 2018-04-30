@@ -39,9 +39,9 @@ class Finger(IntEnum, metaclass=CommonEnum):
 @unique
 class Action(IntEnum, metaclass=CommonEnum):
     """Represents either a press or release"""
-    __order__ = "PRESS RELEASE"
-    PRESS = 0
-    RELEASE = 1
+    __order__ = "RELEASED PRESSED"
+    RELEASED = 0
+    PRESSED = 1
 
 
 """Serial port reading utils"""
