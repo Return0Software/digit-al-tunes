@@ -57,6 +57,7 @@ class MainWindow(Gtk.ApplicationWindow):
     __right_event_set: Set[int] = None
     __button_info: ButtonInfo = None
     __data: Dict[str, Any] = None
+    __file_filter: Gtk.FileFilter = None
     __serial_visualizer: SerialVisualizer = None
     __grid: Gtk.Grid = None
     __headerbar: HeaderBar = None
@@ -73,6 +74,10 @@ class MainWindow(Gtk.ApplicationWindow):
 
     def __init__(self):
         Gtk.ApplicationWindow.__init__(self)
+
+        self.__file_filter = Gtk.FileFilter()
+        self.__file_filter.set_name("JSON files")
+        self.__file_filter.add_mime_type("application/json")
 
         # Create Media sounds TODO: fix me for json
         self.__left_sounds: List[vlc.Media] = [self.__vlc_instance.media_new(SOUNDS[x]) for x in
@@ -137,8 +142,24 @@ class MainWindow(Gtk.ApplicationWindow):
             self.__reveal_image.set_from_icon_name("pan-end-symbolic", Gtk.IconSize.BUTTON)
 
     def __save_cb(self, header: HeaderBar, file_name: str) -> None:
-        with open(file_name, "w") as f:
-            json.dump(self.__data, f, indent=2)
+        if file_name is None:
+            dialog = Gtk.FileChooserNative.new("Choose file to save to", self,
+            Gtk.FileChooserAction.SAVE, "_Save", "_Cancel")
+            dialog.set_do_overwrite_confirmation(True)
+            dialog.add_filter(self.__file_filter)
+
+            response = dialog.run()
+            if response == Gtk.ResponseType.ACCEPT:
+                file_name = dialog.get_filename()
+                if file_name[:4] != ".json":
+                    file_name = file_name + ".json"
+
+            dialog.destroy()
+
+        if file_name is not None:
+            with open(file_name, "w") as f:
+                json.dump(self.__data, f, indent=2)
+            self.__headerbar.set_subtitle(file_name)
 
     def __setup_button_info_cb(self, button_grid: ButtonGrid, label: str) -> None:
         if not self.__revealer.get_child_revealed():

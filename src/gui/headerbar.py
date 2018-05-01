@@ -15,12 +15,13 @@ class HeaderBar(Gtk.HeaderBar):
         "save": (GObject.SIGNAL_RUN_FIRST, None, (str,))
     }
 
+    __new_config_name = "New Configuraton"
     __reset: Gtk.Button = None
     __save: Gtk.Button = None
 
     def __init__(self):
         Gtk.HeaderBar.__init__(self, title="Digit-al Tunes", show_close_button=True,
-            has_subtitle=True, subtitle="New Configuration")
+            has_subtitle=True, subtitle=self.__new_config_name)
 
         self.__reset = Gtk.Button.new_with_label("Reset")
         self.__reset.connect("clicked", self.__reset_cb)
@@ -36,4 +37,5 @@ class HeaderBar(Gtk.HeaderBar):
         print("Reset Callback")
 
     def __save_cb(self, button: Gtk.Button) -> None:
-        self.emit("save", "new.json")
+        subtitle = self.get_subtitle()
+        self.emit("save", None if subtitle == self.__new_config_name else subtitle)
