@@ -103,6 +103,7 @@ def handle_data(data: str) -> Tuple[str, str, str] or None:
     return None
 
 
+
 def read_from_port(ser: Serial, cb) -> None:
     """
     Read data from provided Serial object
@@ -117,11 +118,11 @@ def read_from_port(ser: Serial, cb) -> None:
         connected = True
 
         while True:
-            reading: str = ser.readline().decode()
-            data = handle_data(reading)
-
-            if data:
-                cb(data)
+            if ser.in_waiting > 0:
+                reading: str = ser.readline().decode()
+                data = handle_data(reading)
+                if data:
+                    cb(data)
 
 
 class GloveReader:
@@ -143,7 +144,7 @@ class GloveReader:
 
         # Able to make custom subclass Thread but not sure if needed
         # http://www.bogotobogo.com/python/Multithread/python_multithreading_subclassing_creating_threads.php
-        thread: Thread = Thread(target=read_from_port, args=(serial_port, cb), daemon=True)
+        thread: Thread = Thread(target=read_from_port, args=(serial_port, cb), daemon=True, name="Flora({})".format(port))
         thread.start()
 
 
