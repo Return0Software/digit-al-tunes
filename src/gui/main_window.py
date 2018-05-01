@@ -76,7 +76,7 @@ class MainWindow(Gtk.ApplicationWindow):
 
         # Create Media sounds TODO: fix me for json
         self.__left_sounds: List[vlc.Media] = [self.__vlc_instance.media_new(SOUNDS[x]) for x in
-                                          SOUNDS]  # TODO: make this dict again
+            SOUNDS]  # TODO: make this dict again
         self.__right_sounds: List[vlc.Media] = []
 
         with open("./config/default.json") as f:
@@ -88,6 +88,7 @@ class MainWindow(Gtk.ApplicationWindow):
         self.set_border_width(10)
 
         self.__headerbar = HeaderBar()
+        self.__headerbar.connect("save", self.__save_cb)
         self.set_titlebar(self.__headerbar)
 
         main_grid = Gtk.Grid(column_spacing=20, row_spacing=20, margin=10)
@@ -104,6 +105,7 @@ class MainWindow(Gtk.ApplicationWindow):
         self.__reveal_button.connect("clicked", self.__revealer_cb)
         self.__button_info = ButtonInfo()
         self.__button_info.connect("close-revealer", self.__revealer_cb)
+        self.__button_info.connect("done-editing", self.__update_data_cb)
         self.__revealer = Gtk.Revealer(transition_type=Gtk.RevealerTransitionType.SLIDE_LEFT)
         self.__revealer.add(self.__button_info)
         self.__serial_visualizer = SerialVisualizer()
@@ -134,6 +136,10 @@ class MainWindow(Gtk.ApplicationWindow):
             self.__revealer.set_reveal_child(True)
             self.__reveal_image.set_from_icon_name("pan-end-symbolic", Gtk.IconSize.BUTTON)
 
+    def __save_cb(self, header: HeaderBar, file_name: str) -> None:
+        with open(file_name, "w") as f:
+            json.dump(self.__data, f, indent=2)
+
     def __setup_button_info_cb(self, button_grid: ButtonGrid, label: str) -> None:
         if not self.__revealer.get_child_revealed():
             self.__revealer.set_reveal_child(True)
@@ -141,6 +147,14 @@ class MainWindow(Gtk.ApplicationWindow):
         hand = Hand.LEFT if button_grid is self.__left_button_grid else Hand.RIGHT
         key = "{}{:004b}".format(hand.value, int(label))
         self.__button_info.set_info("{} {}".format(hand.name.title(), label), **self.__data[key])
+
+    def __update_data_cb(self, button_info: ButtonInfo, label: str, path: str):
+        label_split = label.split()
+        hand = label_split[0].lower()
+        key = "{}{:004b}".format(Hand.LEFT if hand == Hand.LEFT.name.lower() else Hand.RIGHT,
+            int(label_split[1]))
+        print(key)
+        self.__data[key]["path"] = path
 
     def __update_sound(self, sv: SerialVisualizer, hand: int, finger: int, action: int):
         player = self.__player_left if hand == Hand.LEFT else self.__player_right

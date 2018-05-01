@@ -18,7 +18,8 @@ class ButtonInfo(Gtk.Grid):
     """
 
     __gsignals__ = {
-        "close-revealer": (GObject.SIGNAL_RUN_FIRST, None, ())
+        "close-revealer": (GObject.SIGNAL_RUN_FIRST, None, ()),
+        "done-editing": (GObject.SIGNAL_RUN_FIRST, None, (str, str))
     }
 
     __action_bar: Gtk.ActionBar = None
@@ -39,7 +40,7 @@ class ButtonInfo(Gtk.Grid):
         self.__label = Gtk.Label()
         self.__done = Gtk.Button.new_with_label("Done")
         self.__done.get_style_context().add_class("suggested-action")
-        self.__done.connect("clicked", lambda button: print("Done")) # save
+        self.__done.connect("clicked", self.__done_editing)
         self.__close = Gtk.Button.new_from_icon_name("window-close-symbolic", Gtk.IconSize.BUTTON)
         self.__close.connect("clicked", lambda button: self.emit("close-revealer"))
         self.__action_bar = Gtk.ActionBar()
@@ -60,13 +61,15 @@ class ButtonInfo(Gtk.Grid):
         self.__combo.set_active(0)
         self.__combo.connect("changed", self.__combo_changed_cb)
 
-        self.__path_entry = Gtk.Entry(editable=True, has_frame=True, margin_right=10)
+        self.__path_entry = Gtk.Entry(editable=True, has_frame=True, margin_bottom=10,
+            margin_right=10)
 
         self.attach(Gtk.Label("Name", halign=Gtk.Align.START, margin_left=10), 0, 1, 1, 1)
         self.attach(self.__name_entry, 1, 1, 1, 1)
         self.attach(Gtk.Label("Function", halign=Gtk.Align.START, margin_left=10), 0, 2, 1, 1)
         self.attach(self.__combo, 1, 2, 1, 1)
-        self.attach(Gtk.Label("Path", halign=Gtk.Align.START, margin_left=10), 0, 3, 1, 1)
+        self.attach(Gtk.Label("Path", halign=Gtk.Align.START, margin_bottom=10, margin_left=10),
+            0, 3, 1, 1)
         self.attach(self.__path_entry, 1, 3, 1, 1)
 
         self.get_style_context().add_class("border-pls")
@@ -76,15 +79,21 @@ class ButtonInfo(Gtk.Grid):
     def __combo_changed_cb(self, combo: Gtk.ComboBoxText) -> None:
         print(combo.get_active_text())
 
+    def __done_editing(self, button: Gtk.Button) -> None:
+        self.emit("done-editing", self.__label.get_text(),
+            self.__path_entry.get_text())
+
     def disable(self) -> None:
         self.enabled = False
         self.__name_entry.set_sensitive(False)
         self.__combo.set_sensitive(False)
+        self.__path_entry.set_sensitive(False)
 
     def enable(self) -> None:
         self.enabled = True
         self.__name_entry.set_sensitive(True)
         self.__combo.set_sensitive(True)
+        self.__path_entry.set_sensitive(True)
 
     def set_info(self, key: str, **kwargs) -> None:
         if not self.enabled:

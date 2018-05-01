@@ -1,6 +1,6 @@
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk
+from gi.repository import GObject, Gtk
 
 import logging
 log: logging = logging.getLogger(__name__)
@@ -10,6 +10,10 @@ class HeaderBar(Gtk.HeaderBar):
     """
     Headerbar for the main window
     """
+
+    __gsignals__ = {
+        "save": (GObject.SIGNAL_RUN_FIRST, None, (str,))
+    }
 
     __reset: Gtk.Button = None
     __save: Gtk.Button = None
@@ -32,4 +36,4 @@ class HeaderBar(Gtk.HeaderBar):
         print("Reset Callback")
 
     def __save_cb(self, button: Gtk.Button) -> None:
-        print("Save Callback")
+        self.emit("save", "new.json")
