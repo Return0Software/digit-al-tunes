@@ -95,7 +95,9 @@ class ButtonInfo(Gtk.Grid):
         self.__combo.set_sensitive(True)
         self.__path_entry.set_sensitive(True)
 
-    def set_info(self, key: str, **kwargs) -> None:
+    def set_info(self, label: str, **kwargs) -> None:
         if not self.enabled:
             self.enable()
-        self.__label.set_label(key)
+        self.__label.set_label(label)
+        if "path" in kwargs.keys() and kwargs["path"] is not None:
+            self.__path_entry.set_text(kwargs["path"])

@@ -51,15 +51,14 @@ class MainWindow(Gtk.ApplicationWindow):
     The main application window
     """
 
+    __button_info: ButtonInfo = None
+    __data: Dict[str, Any] = None
+    __file_filter: Gtk.FileFilter = None
     __left_button_grid: ButtonGrid = None
     __right_button_grid: ButtonGrid = None
     __left_event_set: Set[int] = None
     __right_event_set: Set[int] = None
-    __button_info: ButtonInfo = None
-    __data: Dict[str, Any] = None
-    __file_filter: Gtk.FileFilter = None
     __serial_visualizer: SerialVisualizer = None
-    __grid: Gtk.Grid = None
     __headerbar: HeaderBar = None
     __revealer: Gtk.Revealer = None
     __reveal_button: Gtk.Button = None
@@ -93,6 +92,7 @@ class MainWindow(Gtk.ApplicationWindow):
         self.set_border_width(10)
 
         self.__headerbar = HeaderBar()
+        self.__headerbar.connect("open", self.__open_cb)
         self.__headerbar.connect("save", self.__save_cb)
         self.set_titlebar(self.__headerbar)
 
@@ -131,6 +131,19 @@ class MainWindow(Gtk.ApplicationWindow):
 
         self.add(main_grid)
 
+    def __open_cb(self, headerbar: HeaderBar, file_name: str) -> None:
+        if file_name is None:
+            dialog = Gtk.FileChooserNative.new("Open file", self,
+            Gtk.FileChooserAction.OPEN, "_Open", "_Cancel")
+
+            response = dialog.run()
+            if response == Gtk.ResponseType.ACCEPT:
+                file_name = dialog.get_filename()
+            dialog.destroy()
+
+        if file_name is not None:
+            self.set_data(file_name)
+
     def __revealer_cb(self, object: Union[ButtonInfo, Gtk.Button]) -> None:
         """Close the revealer"""
         # Refactor into 2 different methods? open_revealer and close_revealer
@@ -141,25 +154,27 @@ class MainWindow(Gtk.ApplicationWindow):
             self.__revealer.set_reveal_child(True)
             self.__reveal_image.set_from_icon_name("pan-end-symbolic", Gtk.IconSize.BUTTON)
 
-    def __save_cb(self, header: HeaderBar, file_name: str) -> None:
+    def __save_cb(self, headerbar: HeaderBar, file_name: str) -> None:
+        first_save = None
         if file_name is None:
-            dialog = Gtk.FileChooserNative.new("Choose file to save to", self,
+            first_save = True
+
+            dialog = Gtk.FileChooserNative.new("Save file", self,
             Gtk.FileChooserAction.SAVE, "_Save", "_Cancel")
+            dialog.set_filename("Untitled")
             dialog.set_do_overwrite_confirmation(True)
             dialog.add_filter(self.__file_filter)
 
             response = dialog.run()
             if response == Gtk.ResponseType.ACCEPT:
                 file_name = dialog.get_filename()
-                if file_name[:4] != ".json":
+                if not file_name.endswith(".json"):
                     file_name = file_name + ".json"
 
             dialog.destroy()
 
         if file_name is not None:
-            with open(file_name, "w") as f:
-                json.dump(self.__data, f, indent=2)
-            self.__headerbar.set_subtitle(file_name)
+            self.save_data(file_name, first_save=first_save)
 
     def __setup_button_info_cb(self, button_grid: ButtonGrid, label: str) -> None:
         if not self.__revealer.get_child_revealed():
@@ -170,6 +185,7 @@ class MainWindow(Gtk.ApplicationWindow):
         self.__button_info.set_info("{} {}".format(hand.name.title(), label), **self.__data[key])
 
     def __update_data_cb(self, button_info: ButtonInfo, label: str, path: str):
+        self.__headerbar.set_subtitle("*" + self.__headerbar.get_subtitle())
         label_split = label.split()
         hand = label_split[0].lower()
         key = "{}{:004b}".format(Hand.LEFT if hand == Hand.LEFT.name.lower() else Hand.RIGHT,
@@ -198,3 +214,15 @@ class MainWindow(Gtk.ApplicationWindow):
             # event_set.mp.pause()
             # FIXME pause and loop back when done
             # FIXME does a thread help this
+
+    def save_data(self, file_name: str, first_save: bool=False) -> None:
+        with open(file_name, "w") as f:
+            json.dump(self.__data, f, indent=2)
+        if first_save:
+            self.__headerbar.set_subtitle(file_name)
+        else:
+            self.__headerbar.set_subtitle(file_name.replace("*", "", 1))
+
+    def set_data(self, file_name: str) -> None:
+        with open(file_name, "r") as f:
+            self.__data = json.load(f)
