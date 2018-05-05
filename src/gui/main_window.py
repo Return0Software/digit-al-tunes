@@ -7,13 +7,12 @@ import logging
 import sys
 import vlc
 
-from typing import Any, Dict, Set, Tuple, Union, List
+from typing import Any, Dict, Tuple, Union, List
 
 sys.path.append(sys.path[0] + "/..")
 
 from .button_grid import ButtonGrid
 from .button_info import ButtonInfo
-from .event_set import EventSet
 from glove_interpreter import Hand, Action
 from .headerbar import HeaderBar
 from .serial_visualizer import SerialVisualizer
@@ -31,18 +30,18 @@ log: logging = logging.getLogger(__name__)
 # }
 
 SOUNDS = {
-    0: "/home/joseph/Downloads/piano/68437__pinkyfinger__piano-a.wav",
-    1: "/home/joseph/Downloads/piano/68438__pinkyfinger__piano-b.wav",
-    2: "/home/joseph/Downloads/piano/68439__pinkyfinger__piano-bb.wav",
-    3: "/home/joseph/Downloads/piano/68440__pinkyfinger__piano-c.wav",
-    4: "/home/joseph/Downloads/piano/68441__pinkyfinger__piano-c.wav",
-    5: "/home/joseph/Downloads/piano/68442__pinkyfinger__piano-d.wav",
-    6: "/home/joseph/Downloads/piano/68443__pinkyfinger__piano-e.wav",
-    7: "/home/joseph/Downloads/piano/68444__pinkyfinger__piano-eb.wav",
-    8: "/home/joseph/Downloads/piano/68445__pinkyfinger__piano-f.wav",
-    9: "/home/joseph/Downloads/piano/68446__pinkyfinger__piano-f.wav",
-    10: "/home/joseph/Downloads/piano/68447__pinkyfinger__piano-g.wav",
-    11: "/home/joseph/Downloads/piano/68448__pinkyfinger__piano-g.wav",
+    0: "/home/tristan957/Downloads/piano/68437__pinkyfinger__piano-a.wav",
+    1: "/home/tristan957/Downloads/piano/68438__pinkyfinger__piano-b.wav",
+    2: "/home/tristan957/Downloads/piano/68439__pinkyfinger__piano-bb.wav",
+    3: "/home/tristan957/Downloads/piano/68440__pinkyfinger__piano-c.wav",
+    4: "/home/tristan957/Downloads/piano/68441__pinkyfinger__piano-c.wav",
+    5: "/home/tristan957/Downloads/piano/68442__pinkyfinger__piano-d.wav",
+    6: "/home/tristan957/Downloads/piano/68443__pinkyfinger__piano-e.wav",
+    7: "/home/tristan957/Downloads/piano/68444__pinkyfinger__piano-eb.wav",
+    8: "/home/tristan957/Downloads/piano/68445__pinkyfinger__piano-f.wav",
+    9: "/home/tristan957/Downloads/piano/68446__pinkyfinger__piano-f.wav",
+    10: "/home/tristan957/Downloads/piano/68447__pinkyfinger__piano-g.wav",
+    11: "/home/tristan957/Downloads/piano/68448__pinkyfinger__piano-g.wav",
 }
 
 
@@ -56,8 +55,6 @@ class MainWindow(Gtk.ApplicationWindow):
     __file_filter: Gtk.FileFilter = None
     __left_button_grid: ButtonGrid = None
     __right_button_grid: ButtonGrid = None
-    __left_event_set: Set[int] = None
-    __right_event_set: Set[int] = None
     __serial_visualizer: SerialVisualizer = None
     __headerbar: HeaderBar = None
     __revealer: Gtk.Revealer = None
@@ -85,9 +82,6 @@ class MainWindow(Gtk.ApplicationWindow):
 
         with open("./config/default.json") as f:
             self.__data = json.load(f)
-
-        self.__left_event_set = set()
-        self.__right_event_set = set()
 
         self.set_border_width(10)
 
