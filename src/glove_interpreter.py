@@ -92,11 +92,12 @@ def handle_data(data: str) -> Tuple[str, str, str] or None:
     if data not in ['', None]:  # data can be empty string quite often
         data = data.rstrip()
         try:
-            return (
-                Hand[int(data[0])],
-                Finger[int(data[1])],
-                Action[int(data[2])]
-            )
+            if len(data) == 3:
+                return (
+                    Hand[int(data[0])],
+                    Finger[int(data[1])],
+                    Action[int(data[2])]
+                )
         except (ValueError, IndexError) as e:
             # Should never reach here
             log.error(e, end="")  # Serial port already has new line

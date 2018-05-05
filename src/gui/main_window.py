@@ -71,14 +71,7 @@ class MainWindow(Gtk.ApplicationWindow):
         with open("./config/default.json") as f:
             self.__data = json.load(f)
 
-        self.__left_sounds: List[vlc.Media] = [
-            self.__vlc_instance.media_new(v["path"])
-            for v in list(self.__data.values())[0:15] if v["path"] is not None
-        ]
-        self.__right_sounds: List[vlc.Media] = [
-            self.__vlc_instance.media_new(v["path"])
-            for v in list(self.__data.values())[15:30] if v["path"] is not None
-        ]
+        self.set_sounds()
 
         self.__headerbar = HeaderBar()
         self.__headerbar.connect("open", self.__open_cb)
@@ -134,6 +127,7 @@ class MainWindow(Gtk.ApplicationWindow):
 
         if file_name is not None:
             self.set_data(file_name)
+            self.set_sounds()
 
     def __revealer_cb(self, object: Union[ButtonInfo, Gtk.Button]) -> None:
         """Close the revealer"""
@@ -176,27 +170,36 @@ class MainWindow(Gtk.ApplicationWindow):
         self.__button_info.set_info("{} {}".format(hand.name.title(), label), **self.__data[key])
 
     def __update_data_cb(self, button_info: ButtonInfo, label: str, path: str):
-        self.__headerbar.set_subtitle("*" + self.__headerbar.get_subtitle())
+        subtitle = self.__headerbar.get_subtitle()
+        if "*" != subtitle[0]:
+            self.__headerbar.set_subtitle("*" + subtitle)
         label_split = label.split()
         hand = label_split[0].lower()
-        key = "{}{:004b}".format(Hand.LEFT if hand == Hand.LEFT.name.lower() else Hand.RIGHT,
+        is_left = hand == Hand.LEFT.name.lower()
+        key = "{}{:004b}".format(Hand.LEFT if is_left else Hand.RIGHT,
             int(label_split[1]))
         print(key)
         self.__data[key]["path"] = path
+        # sounds = self.__left_sounds if is_left else self.__right_sounds
+        # for index, m in enumerate(sounds):
+        #     if self.__data[key]["path"] in m.get_mrl():
+        #         sounds[index] = 
 
     def __update_sound(self, sv: SerialVisualizer, hand: int, finger: int, action: int):
-        player = self.__player_left if hand == Hand.LEFT else self.__player_right
+        player = self.__player_left if hand == Hand.LEFT else self.__player_right # TODO fix this shit so not triple comparison
         active_fingers = self.__left_active_fingers if hand == Hand.LEFT else self.__right_active_fingers
         sounds = self.__left_sounds if hand == Hand.LEFT else self.__right_sounds
 
         finger += 1
         if finger not in active_fingers and action == Action.PRESSED:
             active_fingers.append(finger)
-        elif action == Action.RELEASED:
-            del active_fingers[active_fingers.index(finger)]
+        elif finger in active_fingers and action == Action.RELEASED:
+            active_fingers.remove(finger)
+            print("HELP: {} {}".format(finger, active_fingers))
+            # del active_fingers[active_fingers.index(finger)]
 
         print(Hand[hand], sum(active_fingers), active_fingers)
-        if len(active_fingers) > 0:
+        if len(active_fingers) > 0 and len(sounds) > 0:
             sound = sounds[sum(active_fingers)]
             print(sound.get_mrl())
             player.set_media(sound)
@@ -218,3 +221,13 @@ class MainWindow(Gtk.ApplicationWindow):
     def set_data(self, file_name: str) -> None:
         with open(file_name, "r") as f:
             self.__data = json.load(f)
+
+    def set_sounds(self) -> None:
+        self.__left_sounds: List[vlc.Media] = [
+            self.__vlc_instance.media_new(v["path"])
+            for v in list(self.__data.values())[0:15] if v["path"] is not None
+        ]
+        self.__right_sounds: List[vlc.Media] = [
+            self.__vlc_instance.media_new(v["path"])
+            for v in list(self.__data.values())[15:30] if v["path"] is not None
+        ]

@@ -61,7 +61,7 @@ class ButtonInfo(Gtk.Grid):
 
     def __done_editing(self, button: Gtk.Button) -> None:
         self.emit("done-editing", self.__label.get_text(),
-            self.__path_button.get_title())
+            self.__path_button.get_label())
 
     def __update_path_cb(self, button: Gtk.Button) -> None:
         dialog = Gtk.FileChooserNative.new("Open file", self.__win,
