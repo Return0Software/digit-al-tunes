@@ -89,7 +89,8 @@ def handle_data(data: str) -> Tuple[str, str, str] or None:
     :param data: line from Serial port
     :return: None
     """
-    if data not in ['', None] and data.rstrip():  # data can be empty string quite often
+    if data not in ['', None]:  # data can be empty string quite often
+        data = data.rstrip()
         try:
             return (
                 Hand[int(data[0])],
