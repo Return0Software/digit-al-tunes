@@ -70,20 +70,21 @@ class MainWindow(Gtk.ApplicationWindow):
 
     def __init__(self):
         Gtk.ApplicationWindow.__init__(self)
+        
+        self.set_border_width(10)
 
         self.__file_filter = Gtk.FileFilter()
         self.__file_filter.set_name("JSON files")
         self.__file_filter.add_mime_type("application/json")
 
-        # Create Media sounds TODO: fix me for json
-        self.__left_sounds: List[vlc.Media] = [self.__vlc_instance.media_new(SOUNDS[x]) for x in
-            SOUNDS]  # TODO: make this dict again
-        self.__right_sounds: List[vlc.Media] = []
 
         with open("./config/default.json") as f:
             self.__data = json.load(f)
 
-        self.set_border_width(10)
+        self.__left_sounds: List[vlc.Media] = [self.__vlc_instance.media_new(v["path"]) for v in
+            list(self.__data.values())[0:15] if v["path"] is not None]
+        self.__right_sounds: List[vlc.Media] = [self.__vlc_instance.media_new(v["path"]) for v in
+            list(self.__data.values())[15:30] if v["path"] is not None]
 
         self.__headerbar = HeaderBar()
         self.__headerbar.connect("open", self.__open_cb)
@@ -92,9 +93,9 @@ class MainWindow(Gtk.ApplicationWindow):
 
         main_grid = Gtk.Grid(column_spacing=20, row_spacing=20, margin=10)
 
-        self.__left_button_grid = ButtonGrid([self.__data[x]["name"] for x in list(self.__data.keys())[:16]])
+        self.__left_button_grid = ButtonGrid([self.__data[x]["name"] for x in list(self.__data.keys())[:15]])
         self.__left_button_grid.connect("button-clicked", self.__setup_button_info_cb)
-        self.__right_button_grid = ButtonGrid([self.__data[x]["name"] for x in list(self.__data.keys())[16:32]])
+        self.__right_button_grid = ButtonGrid([self.__data[x]["name"] for x in list(self.__data.keys())[15:30]])
         self.__right_button_grid.connect("button-clicked", self.__setup_button_info_cb)
         self.__reveal_image = Gtk.Image.new_from_icon_name("pan-start-symbolic",
             Gtk.IconSize.BUTTON)
@@ -155,7 +156,7 @@ class MainWindow(Gtk.ApplicationWindow):
 
             dialog = Gtk.FileChooserNative.new("Save file", self,
             Gtk.FileChooserAction.SAVE, "_Save", "_Cancel")
-            dialog.set_filename("Untitled")
+            dialog.set_filename("Untitled") # TODO
             dialog.set_do_overwrite_confirmation(True)
             dialog.add_filter(self.__file_filter)
 
@@ -201,6 +202,7 @@ class MainWindow(Gtk.ApplicationWindow):
         print(Hand[hand], sum(active_fingers), active_fingers)
         if len(active_fingers) > 0:
             sound = sounds[sum(active_fingers)]
+            print(sound.get_mrl())
             player.set_media(sound)
             player.play()
         else:
