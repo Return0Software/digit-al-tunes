@@ -110,8 +110,6 @@ class SerialVisualizer(Gtk.Box):
         self.pack_start(Gtk.Separator.new(Gtk.Orientation.VERTICAL), False, True, 0)
         self.pack_end(right_grid, True, True, 0)
 
-        self.set_view((0, 1, 1))
-
         # def create_gloves():
         #     g1 = GloveReader(self.set_view)
         #     g2 = GloveReader(self.set_view)
@@ -142,7 +140,7 @@ class SerialVisualizer(Gtk.Box):
     # def replay_actions(self, actions: List[Tuple[int, int, int]]) -> None
 
     def set_view(self, data: Tuple[int, int, int]) -> None:
-        # self.emit("button-pressed", data[0], data[1], data[2])
+        self.emit("button-pressed", data[0], data[1], data[2])
 
         if data[2] == 0:
             add_style_class = FINGER_NOT_PRESSED

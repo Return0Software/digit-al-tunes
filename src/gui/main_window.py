@@ -19,15 +19,6 @@ from .serial_visualizer import SerialVisualizer
 
 log: logging = logging.getLogger(__name__)
 
-# SOUNDS = {
-#     0: "/home/joseph/Downloads/music/386721_5999918-lq.mp3",
-#     1: "/home/joseph/Downloads/music/386722_5999918-lq.mp3",
-#     2: "/home/joseph/Downloads/music/386723_5999918-lq.mp3",
-#     3: "/home/joseph/Downloads/music/386724_5999918-lq.mp3",
-#     4: "/home/joseph/Downloads/music/386725_5999918-lq.mp3",
-#     5: "/home/joseph/Downloads/music/386726_5999918-lq.mp3",
-#     6: "/home/joseph/Downloads/music/386727_5999918-lq.mp3",
-# }
 
 SOUNDS = {
     0: "/home/tristan957/Downloads/piano/68437__pinkyfinger__piano-a.wav",
@@ -62,7 +53,7 @@ class MainWindow(Gtk.ApplicationWindow):
     __reveal_image: Gtk.Image = None
 
     # VLC players
-    __vlc_instance: vlc.Instance = vlc.Instance()
+    __vlc_instance: vlc.Instance = vlc.Instance("--input-repeat=999999")
     __player_left: vlc.MediaPlayer = __vlc_instance.media_player_new()
     __player_right: vlc.MediaPlayer = __vlc_instance.media_player_new()
     __left_active_fingers: List[int] = []
@@ -77,14 +68,17 @@ class MainWindow(Gtk.ApplicationWindow):
         self.__file_filter.set_name("JSON files")
         self.__file_filter.add_mime_type("application/json")
 
-
         with open("./config/default.json") as f:
             self.__data = json.load(f)
 
-        self.__left_sounds: List[vlc.Media] = [self.__vlc_instance.media_new(v["path"]) for v in
-            list(self.__data.values())[0:15] if v["path"] is not None]
-        self.__right_sounds: List[vlc.Media] = [self.__vlc_instance.media_new(v["path"]) for v in
-            list(self.__data.values())[15:30] if v["path"] is not None]
+        self.__left_sounds: List[vlc.Media] = [
+            self.__vlc_instance.media_new(v["path"])
+            for v in list(self.__data.values())[0:15] if v["path"] is not None
+        ]
+        self.__right_sounds: List[vlc.Media] = [
+            self.__vlc_instance.media_new(v["path"])
+            for v in list(self.__data.values())[15:30] if v["path"] is not None
+        ]
 
         self.__headerbar = HeaderBar()
         self.__headerbar.connect("open", self.__open_cb)
@@ -93,9 +87,11 @@ class MainWindow(Gtk.ApplicationWindow):
 
         main_grid = Gtk.Grid(column_spacing=20, row_spacing=20, margin=10)
 
-        self.__left_button_grid = ButtonGrid([self.__data[x]["name"] for x in list(self.__data.keys())[:15]])
+        self.__left_button_grid = ButtonGrid([self.__data[x]["name"] for x in
+            list(self.__data.keys())[:15]])
         self.__left_button_grid.connect("button-clicked", self.__setup_button_info_cb)
-        self.__right_button_grid = ButtonGrid([self.__data[x]["name"] for x in list(self.__data.keys())[15:30]])
+        self.__right_button_grid = ButtonGrid([self.__data[x]["name"] for x in
+            list(self.__data.keys())[15:30]])
         self.__right_button_grid.connect("button-clicked", self.__setup_button_info_cb)
         self.__reveal_image = Gtk.Image.new_from_icon_name("pan-start-symbolic",
             Gtk.IconSize.BUTTON)
@@ -103,7 +99,7 @@ class MainWindow(Gtk.ApplicationWindow):
         # self.__reveal_button.get_style_context().add_class("not-rounded-button")
         self.__reveal_button.set_image(self.__reveal_image)
         self.__reveal_button.connect("clicked", self.__revealer_cb)
-        self.__button_info = ButtonInfo()
+        self.__button_info = ButtonInfo(self)
         self.__button_info.connect("close-revealer", self.__revealer_cb)
         self.__button_info.connect("done-editing", self.__update_data_cb)
         self.__revealer = Gtk.Revealer(transition_type=Gtk.RevealerTransitionType.SLIDE_LEFT)
