@@ -58,6 +58,8 @@ class MainWindow(Gtk.ApplicationWindow):
     __player_right: vlc.MediaPlayer = __vlc_instance.media_player_new()
     __left_active_fingers: List[int] = []
     __right_active_fingers: List[int] = []
+    __left_sounds: Dict[int, vlc.Media] = {}
+    __right_sounds: Dict[int, vlc.Media] = {}
 
     def __init__(self):
         Gtk.ApplicationWindow.__init__(self)
@@ -71,7 +73,7 @@ class MainWindow(Gtk.ApplicationWindow):
         with open("./config/default.json") as f:
             self.__data = json.load(f)
 
-        self.set_sounds()
+        self.reset_sounds()
 
         self.__headerbar = HeaderBar()
         self.__headerbar.connect("open", self.__open_cb)
@@ -116,14 +118,15 @@ class MainWindow(Gtk.ApplicationWindow):
         self.add(main_grid)
 
     def __open_cb(self, headerbar: HeaderBar, file_name: str) -> None:
-        if file_name is None:
-            dialog = Gtk.FileChooserNative.new("Open file", self,
-            Gtk.FileChooserAction.OPEN, "_Open", "_Cancel")
+        # TODO check if file dirty but nah
+        dialog = Gtk.FileChooserNative.new("Open file", self,
+        Gtk.FileChooserAction.OPEN, "_Open", "_Cancel")
+        dialog.add_filter(self.__file_filter)
 
-            response = dialog.run()
-            if response == Gtk.ResponseType.ACCEPT:
-                file_name = dialog.get_filename()
-            dialog.destroy()
+        response = dialog.run()
+        if response == Gtk.ResponseType.ACCEPT:
+            file_name = dialog.get_filename()
+        dialog.destroy()
 
         if file_name is not None:
             self.set_data(file_name)
@@ -171,19 +174,17 @@ class MainWindow(Gtk.ApplicationWindow):
 
     def __update_data_cb(self, button_info: ButtonInfo, label: str, path: str):
         subtitle = self.__headerbar.get_subtitle()
-        if "*" != subtitle[0]:
+        if not subtitle[0].starts_with("*"):
             self.__headerbar.set_subtitle("*" + subtitle)
         label_split = label.split()
         hand = label_split[0].lower()
         is_left = hand == Hand.LEFT.name.lower()
-        key = "{}{:004b}".format(Hand.LEFT if is_left else Hand.RIGHT,
-            int(label_split[1]))
-        print(key)
+        key = "{}{:004b}".format(Hand.LEFT if is_left else Hand.RIGHT, int(label_split[1]))
+
         self.__data[key]["path"] = path
-        # sounds = self.__left_sounds if is_left else self.__right_sounds
-        # for index, m in enumerate(sounds):
-        #     if self.__data[key]["path"] in m.get_mrl():
-        #         sounds[index] = 
+        sounds = self.__left_sounds if is_left else self.__right_sounds
+        sounds[int(label_split[1])] = self.__vlc_instance.media_new(path)
+        print(sounds[int(label_split[1])].get_mrl())
 
     def __update_sound(self, sv: SerialVisualizer, hand: int, finger: int, action: int):
         player = self.__player_left if hand == Hand.LEFT else self.__player_right # TODO fix this shit so not triple comparison
@@ -210,6 +211,11 @@ class MainWindow(Gtk.ApplicationWindow):
             # FIXME pause and loop back when done
             # FIXME does a thread help this
 
+    def reset_sounds(self) -> None:
+        for i in range(16):
+            self.__left_sounds[i + 1] = None
+            self.__right_sounds[i + 1] = None
+
     def save_data(self, file_name: str, first_save: bool=False) -> None:
         with open(file_name, "w") as f:
             json.dump(self.__data, f, indent=2)
@@ -223,11 +229,12 @@ class MainWindow(Gtk.ApplicationWindow):
             self.__data = json.load(f)
 
     def set_sounds(self) -> None:
-        self.__left_sounds: List[vlc.Media] = [
-            self.__vlc_instance.media_new(v["path"])
-            for v in list(self.__data.values())[0:15] if v["path"] is not None
-        ]
-        self.__right_sounds: List[vlc.Media] = [
-            self.__vlc_instance.media_new(v["path"])
-            for v in list(self.__data.values())[15:30] if v["path"] is not None
-        ]
+        for index, v in enumerate(list(self.__data.values())[:15]):
+            if v["path"] is not None:
+                print(v["path"])
+                self.__left_sounds[index + 1] = self.__vlc_instance.media_new(v["path"])
+        
+        for index, v in enumerate(list(self.__data.values())[15:30]):
+            if v["path"] is not None:
+                print(v["path"])
+                self.__right_sounds[index + 1] = self.__vlc_instance.media_new(v["path"])

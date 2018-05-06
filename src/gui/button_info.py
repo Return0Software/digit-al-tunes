@@ -19,6 +19,7 @@ class ButtonInfo(Gtk.Grid):
     __action_bar: Gtk.ActionBar = None
     __close: Gtk.Button = None
     __done: Gtk.Button = None
+    __file_filter: Gtk.FileFilter = None
     __grid: Gtk.Grid = None
     __label: Gtk.Label = None
     __path_button: Gtk.FileChooserButton = None
@@ -30,6 +31,10 @@ class ButtonInfo(Gtk.Grid):
         Gtk.Grid.__init__(self, column_spacing=50, row_spacing=10)
 
         self.__win = win
+
+        self.__file_filter = Gtk.FileFilter()
+        self.__file_filter.set_name("Audio files")
+        self.__file_filter.add_mime_type("audio/*")
 
         # Creating the action bar
         self.__label = Gtk.Label()
@@ -66,8 +71,10 @@ class ButtonInfo(Gtk.Grid):
     def __update_path_cb(self, button: Gtk.Button) -> None:
         dialog = Gtk.FileChooserNative.new("Open file", self.__win,
         Gtk.FileChooserAction.OPEN, "_Open", "_Cancel")
+        dialog.add_filter(self.__file_filter)
 
         response = dialog.run()
+        file_name = None
         if response == Gtk.ResponseType.ACCEPT:
             file_name = dialog.get_filename()
         dialog.destroy()
@@ -89,7 +96,7 @@ class ButtonInfo(Gtk.Grid):
         if not self.enabled:
             self.enable()
         self.__label.set_label(label)
-        if "path" in kwargs.keys() and kwargs["path"] is not None:
+        if kwargs["path"] is not None:
             self.__path_button.set_label(kwargs["path"])
         else:
             self.__path_button.set_label("None")
