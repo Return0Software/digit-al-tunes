@@ -1,6 +1,6 @@
 import gi
 gi.require_version("Gtk", "3.0")
-from gi.repository import Gdk, Gtk
+from gi.repository import Gdk, GObject, Gtk
 
 import sys
 import threading
@@ -8,13 +8,17 @@ from typing import List, Tuple
 
 sys.path.append(sys.path[0] + "/..")
 from Constants import FINGER_PRESSED, FINGER_NOT_PRESSED
-from glove_interpreter import GloveReader
+from glove_interpreter import GloveReader, Hand, Finger, Action
 
 import logging
 log: logging = logging.getLogger(__name__)
 
 
 class SerialVisualizer(Gtk.Box):
+
+    __gsignals__ = {
+        "button-pressed": (GObject.SIGNAL_RUN_FIRST, None, (int, int, int))
+    }
 
     __left_fingers: List[Gtk.Box] = None
     __right_fingers: List[Gtk.Box] = None
@@ -63,7 +67,7 @@ class SerialVisualizer(Gtk.Box):
         for index, area in enumerate(self.__right_fingers):
             right_grid.attach(area, index, 2, 1, 1)
 
-        middle_grid = Gtk.Grid(column_homogeneous=True, row_spacing=20)
+        middle_grid = Gtk.Grid(column_homogeneous=True)
 
         self.__store = Gtk.ListStore(str, str, str, str)
         self.__tree = Gtk.TreeView.new_with_model(self.__store)
@@ -106,14 +110,11 @@ class SerialVisualizer(Gtk.Box):
         self.pack_start(Gtk.Separator.new(Gtk.Orientation.VERTICAL), False, True, 0)
         self.pack_end(right_grid, True, True, 0)
 
-        def create_gloves():
-            g1 = GloveReader(self.set_view)
-            g2 = GloveReader(self.set_view)
+        # def create_gloves():
+            # g1 = GloveReader(self.set_view)
+            # g2 = GloveReader(self.set_view)
 
-        threading.Thread(name="glove-init", target=create_gloves, daemon=True).start()
-
-        # self.set_view((0, 0, 1))
-        # self.set_view((1, 0, 1))
+        # threading.Thread(name="glove-init", target=create_gloves, daemon=True).start()
 
     def __left_clear(self) -> None:
         for finger in self.__left_fingers:
@@ -139,25 +140,27 @@ class SerialVisualizer(Gtk.Box):
     # def replay_actions(self, actions: List[Tuple[int, int, int]]) -> None
 
     def set_view(self, data: Tuple[int, int, int]) -> None:
+        self.emit("button-pressed", data[0], data[1], data[2])
 
         if data[2] == 0:
             add_style_class = FINGER_NOT_PRESSED
             remove_style_class = FINGER_PRESSED
-            action = "Released"
+            action = Action.PRESSED.name.title()
         else:
             add_style_class = FINGER_PRESSED
             remove_style_class = FINGER_NOT_PRESSED
-            action = "Pressed"
+            action = Action.RELEASED.name.title()
 
         if data[0] == 0:
             finger = self.__left_fingers[3 - data[1]]
             finger.get_style_context().remove_class(remove_style_class)
             finger.get_style_context().add_class(add_style_class)
-            hand = "Left"
+            hand = Hand.LEFT.name.title()
         else:
             finger = self.__right_fingers[data[1]]
             finger.get_style_context().remove_class(remove_style_class)
             finger.get_style_context().add_class(add_style_class)
-            hand = "Right"
+            hand = Hand.RIGHT.name.title()
 
-        self.__store.append(("({}, {}, {})".format(data[0], data[1], data[2]), hand, "Thumb", action))
+        self.__store.append(("({}, {}, {})".format(data[0], data[1], data[2]), hand,
+            Finger[data[1]].name.title(), action))

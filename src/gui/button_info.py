@@ -6,39 +6,41 @@ import logging
 log: logging = logging.getLogger(__name__)
 
 
-class ButtonFunction():
-    NONE = "None"
-    SOUND = "Sound"
-    LOOP = "Loop"
-
-
 class ButtonInfo(Gtk.Grid):
     """
     Widget to display info on buttons
     """
 
     __gsignals__ = {
-        "close-revealer": (GObject.SIGNAL_RUN_FIRST, None, ())
+        "close-revealer": (GObject.SIGNAL_RUN_FIRST, None, ()),
+        "done-editing": (GObject.SIGNAL_RUN_FIRST, None, (str, str))
     }
 
     __action_bar: Gtk.ActionBar = None
     __close: Gtk.Button = None
-    __combo: Gtk.ComboBoxText = None
     __done: Gtk.Button = None
+    __file_filter: Gtk.FileFilter = None
     __grid: Gtk.Grid = None
     __label: Gtk.Label = None
-    __name_entry: Gtk.Entry = None
+    __path_button: Gtk.FileChooserButton = None
+    __win: Gtk.ApplicationWindow = None
 
     enabled: bool = None
 
-    def __init__(self):
-        Gtk.Grid.__init__(self, column_homogeneous=True, row_spacing=10)
+    def __init__(self, win: Gtk.ApplicationWindow):
+        Gtk.Grid.__init__(self, column_spacing=50, row_spacing=10)
+
+        self.__win = win
+
+        self.__file_filter = Gtk.FileFilter()
+        self.__file_filter.set_name("Audio files")
+        self.__file_filter.add_mime_type("audio/*")
 
         # Creating the action bar
         self.__label = Gtk.Label()
         self.__done = Gtk.Button.new_with_label("Done")
         self.__done.get_style_context().add_class("suggested-action")
-        self.__done.connect("clicked", lambda button: print("Done")) # save
+        self.__done.connect("clicked", self.__done_editing)
         self.__close = Gtk.Button.new_from_icon_name("window-close-symbolic", Gtk.IconSize.BUTTON)
         self.__close.connect("clicked", lambda button: self.emit("close-revealer"))
         self.__action_bar = Gtk.ActionBar()
@@ -49,39 +51,52 @@ class ButtonInfo(Gtk.Grid):
 
         self.attach(self.__action_bar, 0, 0, 2, 1)
 
-        # Creating the editable info for a finger combination
-        self.__combo = Gtk.ComboBoxText(margin_right=10)
-        self.__combo.append_text(ButtonFunction.NONE)
-        self.__combo.append_text(ButtonFunction.SOUND)
-        self.__combo.append_text(ButtonFunction.LOOP)
-        self.__combo.set_active(0)
-        self.__combo.connect("changed", self.__combo_changed_cb)
+        self.__path_button = Gtk.Button.new_with_label("None")
+        self.__path_button.connect("clicked", self.__update_path_cb)
+        self.__path_button.set_margin_bottom(10)
+        self.__path_button.set_margin_right(10)
 
-        self.__name_entry = Gtk.Entry(editable=True, has_frame=True, margin_right=10)
-
-        self.attach(Gtk.Label("Name", halign=Gtk.Align.START, margin_left=10), 0, 1, 1, 1)
-        self.attach(self.__name_entry, 1, 1, 1, 1)
-        self.attach(Gtk.Label("Function", halign=Gtk.Align.START, margin_left=10), 0, 2, 1, 1)
-        self.attach(self.__combo, 1, 2, 1, 1)
+        self.attach(Gtk.Label("Path", halign=Gtk.Align.START, margin_bottom=10, margin_left=10),
+            0, 1, 1, 1)
+        self.attach(self.__path_button, 1, 1, 1, 1)
 
         self.get_style_context().add_class("border-pls")
 
         self.disable()
 
-    def __combo_changed_cb(self, combo: Gtk.ComboBoxText) -> None:
-        print(combo.get_active_text())
+    def __done_editing(self, button: Gtk.Button) -> None:
+        self.emit("done-editing", self.__label.get_text(),
+            self.__path_button.get_label())
+
+    def __update_path_cb(self, button: Gtk.Button) -> None:
+        dialog = Gtk.FileChooserNative.new("Open file", self.__win,
+        Gtk.FileChooserAction.OPEN, "_Open", "_Cancel")
+        dialog.add_filter(self.__file_filter)
+
+        response = dialog.run()
+        file_name = None
+        if response == Gtk.ResponseType.ACCEPT:
+            file_name = dialog.get_filename()
+        dialog.destroy()
+
+        if file_name is not None:
+            self.__path_button.set_label(file_name)
 
     def disable(self) -> None:
         self.enabled = False
-        self.__name_entry.set_sensitive(False)
-        self.__combo.set_sensitive(False)
+        self.__done.set_sensitive(False)
+        self.__path_button.set_sensitive(False)
 
     def enable(self) -> None:
         self.enabled = True
-        self.__name_entry.set_sensitive(True)
-        self.__combo.set_sensitive(True)
+        self.__done.set_sensitive(True)
+        self.__path_button.set_sensitive(True)
 
-    def set_info(self, key: str, **kwargs) -> None:
+    def set_info(self, label: str, **kwargs) -> None:
         if not self.enabled:
             self.enable()
-        self.__label.set_label(key)
+        self.__label.set_label(label)
+        if kwargs["path"] is not None:
+            self.__path_button.set_label(kwargs["path"])
+        else:
+            self.__path_button.set_label("None")

@@ -39,9 +39,9 @@ class Finger(IntEnum, metaclass=CommonEnum):
 @unique
 class Action(IntEnum, metaclass=CommonEnum):
     """Represents either a press or release"""
-    __order__ = "PRESS RELEASE"
-    PRESS = 0
-    RELEASE = 1
+    __order__ = "RELEASED PRESSED"
+    RELEASED = 0
+    PRESSED = 1
 
 
 """Serial port reading utils"""
@@ -89,13 +89,15 @@ def handle_data(data: str) -> Tuple[str, str, str] or None:
     :param data: line from Serial port
     :return: None
     """
-    if data not in ['', None] and data.rstrip():  # data can be empty string quite often
+    if data not in ['', None]:  # data can be empty string quite often
+        data = data.rstrip()
         try:
-            return (
-                Hand[int(data[0])],
-                Finger[int(data[1])],
-                Action[int(data[2])]
-            )
+            if len(data) == 3:
+                return (
+                    Hand[int(data[0])],
+                    Finger[int(data[1])],
+                    Action[int(data[2])]
+                )
         except (ValueError, IndexError) as e:
             # Should never reach here
             log.error(e, end="")  # Serial port already has new line
