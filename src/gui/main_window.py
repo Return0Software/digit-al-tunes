@@ -20,22 +20,6 @@ from .serial_visualizer import SerialVisualizer
 log: logging = logging.getLogger(__name__)
 
 
-SOUNDS = {
-    0: "/home/tristan957/Downloads/piano/68437__pinkyfinger__piano-a.wav",
-    1: "/home/tristan957/Downloads/piano/68438__pinkyfinger__piano-b.wav",
-    2: "/home/tristan957/Downloads/piano/68439__pinkyfinger__piano-bb.wav",
-    3: "/home/tristan957/Downloads/piano/68440__pinkyfinger__piano-c.wav",
-    4: "/home/tristan957/Downloads/piano/68441__pinkyfinger__piano-c.wav",
-    5: "/home/tristan957/Downloads/piano/68442__pinkyfinger__piano-d.wav",
-    6: "/home/tristan957/Downloads/piano/68443__pinkyfinger__piano-e.wav",
-    7: "/home/tristan957/Downloads/piano/68444__pinkyfinger__piano-eb.wav",
-    8: "/home/tristan957/Downloads/piano/68445__pinkyfinger__piano-f.wav",
-    9: "/home/tristan957/Downloads/piano/68446__pinkyfinger__piano-f.wav",
-    10: "/home/tristan957/Downloads/piano/68447__pinkyfinger__piano-g.wav",
-    11: "/home/tristan957/Downloads/piano/68448__pinkyfinger__piano-g.wav",
-}
-
-
 class MainWindow(Gtk.ApplicationWindow):
     """
     The main application window
