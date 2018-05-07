@@ -174,7 +174,7 @@ class MainWindow(Gtk.ApplicationWindow):
 
     def __update_data_cb(self, button_info: ButtonInfo, label: str, path: str):
         subtitle = self.__headerbar.get_subtitle()
-        if not subtitle[0].starts_with("*"):
+        if not subtitle[0].startswith("*"):
             self.__headerbar.set_subtitle("*" + subtitle)
         label_split = label.split()
         hand = label_split[0].lower()
@@ -187,22 +187,21 @@ class MainWindow(Gtk.ApplicationWindow):
         print(sounds[int(label_split[1])].get_mrl())
 
     def __update_sound(self, sv: SerialVisualizer, hand: int, finger: int, action: int):
-        player = self.__player_left if hand == Hand.LEFT else self.__player_right # TODO fix this shit so not triple comparison
-        active_fingers = self.__left_active_fingers if hand == Hand.LEFT else self.__right_active_fingers
-        sounds = self.__left_sounds if hand == Hand.LEFT else self.__right_sounds
+        is_left = hand == Hand.LEFT
+        player = self.__player_left if is_left else self.__player_right # TODO fix this shit so not triple comparison
+        active_fingers = self.__left_active_fingers if is_left else self.__right_active_fingers
+        sounds = self.__left_sounds if is_left else self.__right_sounds
 
         finger += 1
         if finger not in active_fingers and action == Action.PRESSED:
             active_fingers.append(finger)
         elif finger in active_fingers and action == Action.RELEASED:
             active_fingers.remove(finger)
-            print("HELP: {} {}".format(finger, active_fingers))
             # del active_fingers[active_fingers.index(finger)]
 
         print(Hand[hand], sum(active_fingers), active_fingers)
         if len(active_fingers) > 0 and len(sounds) > 0:
             sound = sounds[sum(active_fingers)]
-            print(sound.get_mrl())
             player.set_media(sound)
             player.play()
         else:

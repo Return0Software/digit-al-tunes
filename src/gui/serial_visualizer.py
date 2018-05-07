@@ -110,11 +110,11 @@ class SerialVisualizer(Gtk.Box):
         self.pack_start(Gtk.Separator.new(Gtk.Orientation.VERTICAL), False, True, 0)
         self.pack_end(right_grid, True, True, 0)
 
-        # def create_gloves():
-            # g1 = GloveReader(self.set_view)
+        def create_gloves():
+            g1 = GloveReader(self.set_view)
             # g2 = GloveReader(self.set_view)
 
-        # threading.Thread(name="glove-init", target=create_gloves, daemon=True).start()
+        threading.Thread(name="glove-init", target=create_gloves, daemon=True).start()
 
     def __left_clear(self) -> None:
         for finger in self.__left_fingers:
