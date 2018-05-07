@@ -113,6 +113,7 @@ class MainWindow(Gtk.ApplicationWindow):
         dialog.destroy()
 
         if file_name is not None:
+            self.__headerbar.set_subtitle(file_name)
             self.set_data(file_name)
             self.set_sounds()
 
