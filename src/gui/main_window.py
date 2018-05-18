@@ -37,7 +37,7 @@ class MainWindow(Gtk.ApplicationWindow):
     __reveal_image: Gtk.Image = None
 
     # VLC players
-    __vlc_instance: vlc.Instance = vlc.Instance("--input-repeat=999999")
+    __vlc_instance: vlc.Instance = vlc.Instance()
     __player_left: vlc.MediaPlayer = __vlc_instance.media_player_new()
     __player_right: vlc.MediaPlayer = __vlc_instance.media_player_new()
     __left_active_fingers: List[int] = []
@@ -147,6 +147,8 @@ class MainWindow(Gtk.ApplicationWindow):
             dialog.destroy()
 
         if file_name is not None:
+            if file_name.startswith("*"):
+                file_name = file_name[1:]
             self.save_data(file_name, first_save=first_save)
 
     def __setup_button_info_cb(self, button_grid: ButtonGrid, label: str) -> None:
